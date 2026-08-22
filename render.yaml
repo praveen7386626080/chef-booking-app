@@ -3,7 +3,7 @@ services:
     name: chef-booking-app
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build && cd chef-backend && npm install
+    buildCommand: npm install --include=dev && npm run build && cd chef-backend && npm install
     startCommand: node chef-backend/server.js
     envVars:
       - key: NODE_ENV
