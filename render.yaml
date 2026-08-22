@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: chef-booking-app
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build && cd chef-backend && npm install
+    startCommand: node chef-backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_USER
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: Praveen@123
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false

@@ -1,24 +1,213 @@
+// chef-backend/server.js - COMPLETE WORKING VERSION
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
+const path = require('path');
 require('dotenv').config();
-const db = require('./database'); // Import the database
+const db = require('./database');
+
+// Import routes
+const ordersRouter = require('./routes/orders');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Middleware
-app.use(cors()); // Allows requests from your React frontend
-app.use(express.json()); // Lets the server understand JSON data
+// Trust reverse proxy (necessary for Render / Cloud hosting)
+app.set('trust proxy', 1);
 
-// ==================== ROUTES ====================
+// ==================== MIDDLEWARE ====================
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
-// 1. TEST ROUTE - Check if server is working
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || isProduction) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+}));
+
+app.use(express.json());
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'chef-srinivas-secret-key-2024',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: isProduction, // Enabled in production behind HTTPS
+    httpOnly: true, 
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// ==================== AUTHENTICATION MIDDLEWARE ====================
+const requireAuth = (req, res, next) => {
+  if (req.session.isAuthenticated) {
+    next();
+  } else {
+    res.status(401).json({ 
+      success: false, 
+      message: 'Authentication required' 
+    });
+  }
+};
+
+// ==================== AUTHENTICATION ROUTES ====================
+
+// Login endpoint
+app.post('/api/admin/login', (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Username and password are required' 
+      });
+    }
+    
+    db.get('SELECT id, username, password_hash FROM users WHERE username = ?', [username], (err, row) => {
+      if (err) {
+        console.error('DB error during login:', err);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (!row) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      }
+
+      bcrypt.compare(password, row.password_hash, (bcryptErr, match) => {
+        if (bcryptErr) {
+          console.error('Bcrypt error:', bcryptErr);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+
+        if (!match) {
+          return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        req.session.isAuthenticated = true;
+        req.session.user = { username: row.username, id: row.id };
+        console.log('🔐 Admin logged in successfully:', row.username);
+        return res.status(200).json({ success: true, message: 'Login successful' });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
+// Logout endpoint
+app.post('/api/admin/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Logout failed' 
+      });
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Logout successful' 
+    });
+  });
+});
+
+// Check auth status
+app.get('/api/admin/check-auth', (req, res) => {
+  if (req.session.isAuthenticated) {
+    res.status(200).json({ 
+      success: true, 
+      authenticated: true,
+      user: req.session.user 
+    });
+  } else {
+    res.status(200).json({ 
+      success: true, 
+      authenticated: false 
+    });
+  }
+});
+
+// Admin change-password endpoint (protected)
+app.post('/api/admin/change-password', requireAuth, (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'oldPassword and newPassword are required' });
+    }
+
+    const username = req.session.user && req.session.user.username;
+    if (!username) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    db.get('SELECT id, password_hash FROM users WHERE username = ?', [username], (err, row) => {
+      if (err) {
+        console.error('DB error:', err);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+      if (!row) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      bcrypt.compare(oldPassword, row.password_hash, (bcryptErr, match) => {
+        if (bcryptErr) {
+          console.error('Bcrypt error:', bcryptErr);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+        if (!match) {
+          return res.status(401).json({ success: false, message: 'Old password is incorrect' });
+        }
+
+        const saltRounds = 10;
+        bcrypt.hash(newPassword, saltRounds, (hashErr, newHash) => {
+          if (hashErr) {
+            console.error('Hash error:', hashErr);
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          db.run('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, row.id], function(updateErr) {
+            if (updateErr) {
+              console.error('DB update error:', updateErr);
+              return res.status(500).json({ success: false, message: 'Failed to update password' });
+            }
+            return res.status(200).json({ success: true, message: 'Password updated successfully' });
+          });
+        });
+      });
+    });
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ==================== API ROUTES ====================
+
+// Test route
 app.get('/api', (req, res) => {
   res.json({ message: 'Welcome to Chef Srinivas Backend API!' });
 });
 
-// 2. GET ALL CONTACTS - For admin panel
-app.get('/api/contacts', (req, res) => {
+// GET ALL CONTACTS - For admin panel
+app.get('/api/contacts', requireAuth, (req, res) => {
   const sql = `SELECT * FROM contacts ORDER BY created_at DESC`;
   
   db.all(sql, [], (err, rows) => {
@@ -37,8 +226,8 @@ app.get('/api/contacts', (req, res) => {
   });
 });
 
-// 3. SEARCH CONTACTS - For search functionality
-app.get('/api/contacts/search', (req, res) => {
+// SEARCH CONTACTS
+app.get('/api/contacts/search', requireAuth, (req, res) => {
   try {
     const { query } = req.query;
     
@@ -65,6 +254,7 @@ app.get('/api/contacts/search', (req, res) => {
       
       res.status(200).json({ 
         success: true, 
+        contacts: rows 
       });
     });
     
@@ -77,12 +267,11 @@ app.get('/api/contacts/search', (req, res) => {
   }
 });
 
-// 4. SUBMIT CONTACT FORM - For website contact form
+// SUBMIT CONTACT FORM
 app.post('/api/contact', (req, res) => {
   try {
     const { name, email, message } = req.body;
     
-    // Basic validation - check if all fields are filled
     if (!name || !email || !message) {
       return res.status(400).json({ 
         success: false, 
@@ -90,7 +279,6 @@ app.post('/api/contact', (req, res) => {
       });
     }
     
-    // Save to SQLite database
     const sql = `INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)`;
     const params = [name, email, message];
     
@@ -104,9 +292,6 @@ app.post('/api/contact', (req, res) => {
       }
       
       console.log('✅ Message saved to database with ID:', this.lastID);
-      console.log('👤 Name:', name);
-      console.log('📧 Email:', email);
-      console.log('💬 Message:', message);
       
       res.status(200).json({ 
         success: true, 
@@ -124,8 +309,8 @@ app.post('/api/contact', (req, res) => {
   }
 });
 
-// 5. UPDATE STATUS - Mark messages as read/unread
-app.patch('/api/contacts/:id/status', (req, res) => {
+// UPDATE CONTACT STATUS
+app.patch('/api/contacts/:id/status', requireAuth, (req, res) => {
   try {
     const contactId = req.params.id;
     const { status } = req.body;
@@ -172,8 +357,8 @@ app.patch('/api/contacts/:id/status', (req, res) => {
   }
 });
 
-// 6. DELETE CONTACT - Remove a message
-app.delete('/api/contacts/:id', (req, res) => {
+// DELETE CONTACT
+app.delete('/api/contacts/:id', requireAuth, (req, res) => {
   try {
     const contactId = req.params.id;
     
@@ -212,233 +397,387 @@ app.delete('/api/contacts/:id', (req, res) => {
   }
 });
 
-// 7. ORDER SUBMISSION ENDPOINT
-app.post('/api/orders', (req, res) => {
-  try {
-    console.log('📦 Received order request:', JSON.stringify(req.body, null, 2));
-    
-    const {
-      customer_name,
-      customer_phone,
-      customer_email,
-      dish_name,
-      dish_price,
-      booking_date,
-      number_of_guests,
-      delivery_address,
-      special_requests
-    } = req.body;
+// ==================== USE ORDERS ROUTER ====================
+app.use('/api/orders', ordersRouter);
 
-    // Enhanced validation with detailed logging
-    const requiredFields = {
-      customer_name,
-      customer_phone,
-      dish_name,
-      dish_price,
-      booking_date,
-      number_of_guests,
-      delivery_address
-    };
+// ==================== ADMIN HTML PAGES ====================
 
-    console.log('🔍 Field validation:');
-    for (const [field, value] of Object.entries(requiredFields)) {
-      console.log(`   ${field}: ${value} (${typeof value}) - Valid: ${!!value}`);
-    }
-
-    // Check if any required field is empty
-    const missingFields = Object.entries(requiredFields)
-      .filter(([field, value]) => !value)
-      .map(([field]) => field);
-
-    if (missingFields.length > 0) {
-      console.log('❌ Missing fields:', missingFields);
-      return res.status(400).json({ 
-        success: false, 
-        message: 'All required fields must be filled',
-        missingFields: missingFields
-      });
-    }
-
-    // Validate number of guests
-    if (number_of_guests < 1 || number_of_guests > 1000) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Number of guests must be between 1 and 1000' 
-      });
-    }
-
-    // Validate date is not in the past
-    const bookingDate = new Date(booking_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (bookingDate < today) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Booking date cannot be in the past' 
-      });
-    }
-
-    // Save order to database
-    const sql = `INSERT INTO orders 
-                 (customer_name, customer_phone, customer_email, dish_name, dish_price, booking_date, number_of_guests, delivery_address, special_requests) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    
-    const params = [
-      customer_name,
-      customer_phone,
-      customer_email || '',
-      dish_name,
-      dish_price,
-      booking_date,
-      number_of_guests,
-      delivery_address,
-      special_requests || ''
-    ];
-
-    db.run(sql, params, function(err) {
-      if (err) {
-        console.error('❌ Database error saving order:', err);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'Failed to save order' 
-        });
+// ADMIN LOGIN PAGE
+app.get('/admin', (req, res) => {
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Chef Srinivas - Admin Login</title>
+    <style>
+      body { 
+        font-family: Arial, sans-serif; 
+        margin: 0; 
+        padding: 0; 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
+      .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        width: 100%;
+        max-width: 400px;
+      }
+      h1 { 
+        color: #2c3e50; 
+        text-align: center; 
+        margin-bottom: 30px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      input:focus {
+        border-color: #667eea;
+        outline: none;
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .btn:hover {
+        background: #764ba2;
+      }
+      .error {
+        color: #e74c3c;
+        text-align: center;
+        margin-top: 10px;
+        display: none;
+      }
+      .success {
+        color: #27ae60;
+        text-align: center;
+        margin-top: 10px;
+        display: none;
+      }
+      .forgot-password {
+        text-align: center;
+        margin-top: 12px;
+      }
+      .forgot-password a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .forgot-password a:hover {
+        text-decoration: underline;
+      }
+      .demo-credentials {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>🔐 Admin Login</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <div id="errorMessage" class="error"></div>
+        <p class="forgot-password">
+          <a href="/admin/forgot-password">Forgot your password?</a>
+        </p>
+      </form>
+      <div class="demo-credentials">
+        <strong>Demo Credentials:</strong><br>
+        Username: admin<br>
+        Password: Praveen@123
+      </div>
+    </div>
 
-      console.log('✅ New order saved with ID:', this.lastID);
-      console.log('👤 Customer:', customer_name);
-      console.log('📞 Phone:', customer_phone);
-      console.log('🍽️ Dish:', dish_name);
-      console.log('💰 Price:', dish_price);
-      console.log('📅 Date:', booking_date);
-      console.log('👥 Guests:', number_of_guests);
-
-      res.status(200).json({ 
-        success: true, 
-        message: 'Order placed successfully! Chef Srinivas will contact you to confirm.',
-        orderId: this.lastID
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'none';
+        
+        try {
+          const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            window.location.href = '/admin/orders';
+          } else {
+            errorMessage.textContent = data.message;
+            errorMessage.style.display = 'block';
+          }
+        } catch (error) {
+          errorMessage.textContent = 'Login failed. Please try again.';
+          errorMessage.style.display = 'block';
+        }
       });
-    });
-
-  } catch (error) {
-    console.error('❌ Error processing order:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
-  }
-});
-
-// 8. GET ALL ORDERS ENDPOINT (for admin)
-app.get('/api/orders', (req, res) => {
-  const sql = `SELECT * FROM orders ORDER BY created_at DESC`;
+    </script>
+  </body>
+  </html>
+  `;
   
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      console.error('Database error fetching orders:', err);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Failed to fetch orders' 
-      });
-    }
-    
-    res.status(200).json({ 
-      success: true, 
-      orders: rows 
-    });
-  });
+  res.send(html);
 });
 
-// 9. UPDATE ORDER STATUS (for admin)
-app.patch('/api/orders/:id/status', (req, res) => {
+// ADMIN FORGOT PASSWORD PAGE
+app.get('/admin/forgot-password', (req, res) => {
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Chef Srinivas - Reset Admin Password</title>
+    <style>
+      body { 
+        font-family: Arial, sans-serif; 
+        margin: 0; 
+        padding: 0; 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .reset-container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        width: 100%;
+        max-width: 420px;
+      }
+      h1 { 
+        color: #2c3e50; 
+        text-align: center; 
+        margin-bottom: 30px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      input:focus {
+        border-color: #667eea;
+        outline: none;
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .btn:hover {
+        background: #764ba2;
+      }
+      .message {
+        text-align: center;
+        margin-top: 10px;
+        display: none;
+      }
+      .message.error {
+        color: #e74c3c;
+      }
+      .message.success {
+        color: #27ae60;
+      }
+      .back-link {
+        text-align: center;
+        margin-top: 15px;
+      }
+      .back-link a {
+        color: #667eea;
+        text-decoration: none;
+      }
+      .back-link a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reset-container">
+      <h1>🔑 Reset Password</h1>
+      <form id="resetForm">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" name="newPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm New Password:</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        <button type="submit" class="btn">Reset Password</button>
+        <div id="resetMessage" class="message"></div>
+      </form>
+      <div class="back-link">
+        <a href="/admin">Back to Login</a>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('resetForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const message = document.getElementById('resetMessage');
+
+        message.style.display = 'none';
+        message.classList.remove('error', 'success');
+
+        if (newPassword !== confirmPassword) {
+          message.textContent = 'New password and confirmation do not match.';
+          message.classList.add('error');
+          message.style.display = 'block';
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/admin/reset-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, newPassword, confirmPassword })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            message.textContent = 'Password reset successfully. You can now log in.';
+            message.classList.add('success');
+            message.style.display = 'block';
+          } else {
+            message.textContent = data.message;
+            message.classList.add('error');
+            message.style.display = 'block';
+          }
+        } catch (error) {
+          message.textContent = 'Password reset failed. Please try again.';
+          message.classList.add('error');
+          message.style.display = 'block';
+        }
+      });
+    </script>
+  </body>
+  </html>
+  `;
+
+  res.send(html);
+});
+
+app.post('/api/admin/reset-password', (req, res) => {
   try {
-    const orderId = req.params.id;
-    const { status } = req.body;
-    
-    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Status must be "pending", "confirmed", or "cancelled"' 
-      });
+    const { username, newPassword, confirmPassword } = req.body;
+
+    if (!username || !newPassword || !confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Username, new password, and confirmation are required' });
     }
-    
-    const sql = `UPDATE orders SET status = ? WHERE id = ?`;
-    
-    db.run(sql, [status, orderId], function(err) {
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Passwords do not match' });
+    }
+
+    db.get('SELECT id FROM users WHERE username = ?', [username], (err, row) => {
       if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'Failed to update order status' 
-        });
+        console.error('DB error during password reset:', err);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
       }
-      
-      if (this.changes === 0) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'Order not found' 
-        });
+
+      if (!row) {
+        return res.status(404).json({ success: false, message: 'User not found' });
       }
-      
-      console.log('📝 Order status updated:', orderId, '->', status);
-      
-      res.status(200).json({ 
-        success: true, 
-        message: 'Order status updated successfully' 
+
+      bcrypt.hash(newPassword, 10, (hashErr, newHash) => {
+        if (hashErr) {
+          console.error('Hash error:', hashErr);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+
+        db.run('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, row.id], function(updateErr) {
+          if (updateErr) {
+            console.error('DB update error:', updateErr);
+            return res.status(500).json({ success: false, message: 'Failed to update password' });
+          }
+
+          res.status(200).json({ success: true, message: 'Password has been reset successfully' });
+        });
       });
     });
-    
   } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
+    console.error('Reset password error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
-// 10. DELETE ORDER ENDPOINT (for admin)
-app.delete('/api/orders/:id', (req, res) => {
-  try {
-    const orderId = req.params.id;
-    
-    const sql = `DELETE FROM orders WHERE id = ?`;
-    
-    db.run(sql, [orderId], function(err) {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'Failed to delete order' 
-        });
-      }
-      
-      if (this.changes === 0) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'Order not found' 
-        });
-      }
-      
-      console.log('🗑️ Order deleted with ID:', orderId);
-      
-      res.status(200).json({ 
-        success: true, 
-        message: 'Order deleted successfully' 
-      });
-    });
-    
-  } catch (error) {
-    console.error('Error deleting order:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
-  }
-});
-
-// 11. ADMIN PANEL - HTML page to view and manage orders
-app.get('/admin/orders', (req, res) => {
+// ADMIN PANEL - HTML page to view and manage orders
+app.get('/admin/orders', requireAuth, (req, res) => {
   const sql = `SELECT * FROM orders ORDER BY created_at DESC`;
   
   db.all(sql, [], (err, orders) => {
@@ -472,65 +811,24 @@ app.get('/admin/orders', (req, res) => {
         .details-row { display: none; }
         .details-row.show { display: table-row; }
         .details-content { padding: 15px; background: #f9f9f9; }
+        .logout-btn {
+          background: #e74c3c;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+          margin-bottom: 20px;
+        }
       </style>
-      <script>
-        function toggleDetails(orderId) {
-          const row = document.getElementById('details-' + orderId);
-          row.classList.toggle('show');
-        }
-        
-        function updateOrderStatus(orderId, status) {
-          if (!confirm('Are you sure you want to ' + status + ' this order?')) {
-            return;
-          }
-          
-          fetch('/api/orders/' + orderId + '/status', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: status })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              alert('Order ' + status + ' successfully!');
-              location.reload();
-            } else {
-              alert('Error: ' + data.message);
-            }
-          })
-          .catch(error => {
-            alert('Error updating order status');
-          });
-        }
-        
-        function deleteOrder(orderId) {
-          if (!confirm('Are you sure you want to delete this order? This cannot be undone.')) {
-            return;
-          }
-          
-          fetch('/api/orders/' + orderId, {
-            method: 'DELETE'
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              alert('Order deleted successfully!');
-              location.reload();
-            } else {
-              alert('Error: ' + data.message);
-            }
-          })
-          .catch(error => {
-            alert('Error deleting order');
-          });
-        }
-      </script>
     </head>
     <body>
       <div class="container">
         <h1>🍽️ Chef Srinivas - Order Management</h1>
+        <div style="text-align: center;">
+          <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
         <p>Total Orders: ${orders.length}</p>
     `;
     
@@ -588,12 +886,107 @@ app.get('/admin/orders', (req, res) => {
     
     html += `
       </div>
+      
+      <script>
+        function toggleDetails(orderId) {
+          const row = document.getElementById('details-' + orderId);
+          row.classList.toggle('show');
+        }
+        
+        function updateOrderStatus(orderId, status) {
+          if (!confirm('Are you sure you want to ' + status + ' this order?')) {
+            return;
+          }
+          
+          fetch('/api/orders/' + orderId + '/status', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: status })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('Order ' + status + ' successfully!');
+              location.reload();
+            } else {
+              alert('Error: ' + data.message);
+            }
+          })
+          .catch(error => {
+            alert('Error updating order status');
+          });
+        }
+        
+        function deleteOrder(orderId) {
+          if (!confirm('Are you sure you want to delete this order? This cannot be undone.')) {
+            return;
+          }
+          
+          fetch('/api/orders/' + orderId, {
+            method: 'DELETE'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('Order deleted successfully!');
+              location.reload();
+            } else {
+              alert('Error: ' + data.message);
+            }
+          })
+          .catch(error => {
+            alert('Error deleting order');
+          });
+        }
+        
+        function logout() {
+          if (confirm('Are you sure you want to logout?')) {
+            fetch('/api/admin/logout', {
+              method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                window.location.href = '/admin';
+              }
+            });
+          }
+        }
+        
+        // Check authentication on page load
+        fetch('/api/admin/check-auth')
+          .then(response => response.json())
+          .then(data => {
+            if (!data.authenticated) {
+              window.location.href = '/admin';
+            }
+          });
+      </script>
     </body>
     </html>
     `;
     
     res.send(html);
   });
+});
+
+// ==================== SERVE STATIC FRONTEND (PRODUCTION / BUILD) ====================
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+// Fallback to serve React Single Page Application (SPA) for any unhandled GET requests
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/admin/orders') && !req.path.startsWith('/admin/forgot-password')) {
+    const indexPath = path.join(distPath, 'index.html');
+    return res.sendFile(indexPath, (err) => {
+      if (err) {
+        next();
+      }
+    });
+  }
+  next();
 });
 
 // ==================== START SERVER ====================
@@ -604,7 +997,6 @@ app.listen(PORT, () => {
   console.log(`👥 Contacts list: http://localhost:${PORT}/api/contacts`);
   console.log(`🔍 Search: http://localhost:${PORT}/api/contacts/search?query=example`);
   console.log(`🍽️ Orders endpoint: http://localhost:${PORT}/api/orders`);
-  console.log(`👨‍🍳 Admin orders page: http://localhost:${PORT}/admin/orders`);
-  console.log(`🛠️ Order status API: http://localhost:${PORT}/api/orders/:id/status`);
-  console.log(`🗑️ Delete order API: http://localhost:${PORT}/api/orders/:id`);
+  console.log(`👨‍🍳 Admin login: http://localhost:${PORT}/admin`);
+  console.log(`📋 Admin orders page: http://localhost:${PORT}/admin/orders`);
 });

@@ -33,6 +33,7 @@
   
   /* Transitions */
   --transition: all 0.3s ease;
+  --transition-fast: all 180ms ease;
 }
 
 /* Reset & Base Styles */
@@ -54,31 +55,44 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== ENHANCED HEADER ===== */
 .header {
-  background: var(--white);
+  /* Dark blue header */
+  background: #245ba4;
+  color: #566985;
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: var(--transition);
 }
 
 .header.scrolled {
-  background: rgba(255, 255, 255, 0.95);
+  /* Slightly translucent dark blue when scrolled */
+  background: rgba(7, 90, 198, 0.95);
   box-shadow: var(--shadow-md);
+  color: #ffffff;
+}
+.header h1 {
+  /* Title: black by default, smaller for a compact header */
+  font-size: 1.4rem;
+  color: #090202;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+  font-weight: 700;
+  text-shadow: none;
 }
 
-.header h1 {
-  font-size: 1.8rem;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
+.header.scrolled h1 {
+  /* Keep title readable on dark scrolled header */
+  color: #ffffff;
 }
 
 .nav {
@@ -87,34 +101,170 @@ body {
 }
 
 .nav a {
-  color: var(--text);
+  color: #ffffff;
   text-decoration: none;
-  font-weight: 500;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
+  font-weight: 400; /* default weight */
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: var(--transition-fast);
   position: relative;
+  background: rgba(194, 179, 179, 0.1);
+  border: 1px solid transparent;
 }
 
 .nav a:hover {
-  color: var(--primary);
-  transform: translateY(-2px);
+  color: inherit;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(225, 217, 217, 0.08);
+}
+
+.nav a.active,
+.nav a:active {
+  color: #ffffff;
+  background: #111111; /* active = dark */
+  border-color: #222222;
+  font-weight: 600; /* emphasize active */
 }
 
 .nav a::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -2px;
   left: 50%;
   width: 0;
   height: 2px;
-  background: var(--primary);
-  transition: var(--transition);
+  background: #4b5563;
+  transition: var(--transition-fast);
   transform: translateX(-50%);
 }
 
 .nav a:hover::after {
-  width: 80%;
+  width: 60%;
+}
+
+.header.scrolled .nav a {
+  /* Keep per-link backgrounds (solid colors) intact; adjust text color for contrast */
+  color: #ffffff;
+  /* Do not override per-link backgrounds so buttons stay visible */
+  border-color: rgba(255,255,255,0.06);
+  z-index: 1; /* ensure links render above header background effects */
+}
+
+.header.scrolled .nav a:hover {
+  color: #ffffff;
+  /* preserve individual hover backgrounds for colored links */
+  border-color: rgba(255,255,255,0.12);
+}
+
+.header.scrolled .nav a::after {
+  background: var(--primary);
+}
+
+/* Individual nav link styling */
+.nav a[href="/"] {
+  /* Home - Black (unified) */
+  color: #ffffff;
+  background: #000000;
+  border-color: #111111;
+}
+
+.nav a[href="/"]:hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-3px);
+}
+
+.nav a[href="/"]:active,
+.nav a[href="/"].active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+/* Menu link styling */
+.nav a:nth-child(2) {
+  /* Menu - Black (unified) */
+  color: #ffffff;
+  background: #000000;
+  border-color: #111111;
+}
+
+.nav a:nth-child(2):hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-3px);
+}
+
+.nav a:nth-child(2):active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+/* About link styling */
+.nav a:nth-child(3) {
+  /* About - Black (unified) */
+  color: #ffffff;
+  background: #000000;
+  border-color: #111111;
+}
+
+.nav a:nth-child(3):hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-3px);
+}
+
+.nav a:nth-child(3):active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+/* Contact link styling */
+.nav a:nth-child(4) {
+  /* Contact - Black (unified) */
+  color: #ffffff;
+  background: #000000;
+  border-color: #111111;
+}
+
+.nav a:nth-child(4):hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-3px);
+}
+
+.nav a:nth-child(4):active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+/* Admin link styling */
+.nav a[href="/admin"] {
+  /* Admin - Black (unified) */
+  color: #ffffff;
+  background: #000000;
+  border-color: #111111;
+}
+
+.nav a[href="/admin"]:hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-3px);
+}
+
+.nav a[href="/admin"]:active,
+.nav a[href="/admin"].active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #333333;
 }
 
 /* ===== ENHANCED HERO SECTION ===== */
@@ -126,13 +276,27 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--white);
   text-align: center;
-  padding: 8rem var(--spacing-lg) 6rem;
+  padding: 120px var(--spacing-lg) 6rem;
+  margin-top: 0;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 0;
+}
+
+/* Admin-specific hero: use a simpler, more muted gradient (no photo) for better contrast on login */
+.hero.admin-hero {
+  background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(31,41,55,0.95) 100%);
+  background-size: cover;
+  background-position: center;
+  /* Don't use fixed attachment for admin to avoid weird scrolling */
+  background-attachment: scroll;
+  color: var(--white);
 }
 
 .hero-content h2 {
@@ -521,3 +685,200 @@ body {
 .p-1 { padding: var(--spacing-sm); }
 .p-2 { padding: var(--spacing-md); }
 .p-3 { padding: var(--spacing-lg); }
+
+/* Ensure header title styling takes precedence (more specific selector) */
+.header a h1 {
+  color: #000000;
+  font-size: 1.7rem;
+  font-style: italic;
+  background: none;
+  background-clip: initial;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  font-weight: 700;
+  margin: 0;
+}
+
+.header.scrolled a h1 {
+  color: #ffffff;
+}
+/* App.css */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Ensure sections have proper spacing */
+section {
+  padding: 80px 20px 40px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+/* Fix header overlap */
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgb(202, 225, 213);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Add padding to account for fixed header */
+#home {
+  padding-top: 100px;
+}
+/* ===== WHATSAPP FLOATING BUTTON ===== */
+.whatsapp-float {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+}
+
+/* Arrange label and button side-by-side */
+.whatsapp-float {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-direction: row-reverse; /* keep label visually to the left of the icon */
+}
+
+.whatsapp-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background-color: #25D366;
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  animation: pulse 2s infinite;
+}
+
+.whatsapp-side-label {
+  background: rgba(40, 167, 40, 0.943);
+  color: #f6eff6;
+  border: 1px solid rgba(37,211,102,0.25);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, transform 0.2s ease;
+
+  /* Hidden by default; reveal when the icon is hovered or focused */
+  opacity: 0;
+  transform: translateX(-8px) scale(0.98);
+  pointer-events: none;
+}
+
+.whatsapp-side-label:hover {
+  transform: translateX(-3px);
+  box-shadow: 0 6px 18px rgba(37,211,102,0.12);
+}
+
+/* Show label when hovering or focusing the whole float area */
+.whatsapp-float:hover .whatsapp-side-label,
+.whatsapp-float:focus-within .whatsapp-side-label {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+}
+
+.whatsapp-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+  background-color: #128C7E;
+}
+
+.whatsapp-icon {
+  width: 30px;
+  height: 30px;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .whatsapp-float {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .whatsapp-link {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .whatsapp-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Hide the side label on small screens to save space */
+@media (max-width: 480px) {
+  .whatsapp-side-label { display: none; }
+}
+
+/* WhatsApp suggestions popup */
+.whatsapp-popup {
+  position: absolute;
+  right: 70px;
+  bottom: 0;
+  transform: translateY(-8px);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.whatsapp-suggestion {
+  background: #f7f7f7;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.whatsapp-suggestion:hover {
+  background: #e6f7ee;
+}
+
+.whatsapp-suggestion.whatsapp-chat {
+  background: #25D366;
+  color: white;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .whatsapp-popup { right: 80px; min-width: 180px; }
+}

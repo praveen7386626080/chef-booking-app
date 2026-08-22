@@ -17,6 +17,16 @@ function BookingModal({ isOpen, onClose, selectedItem }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'phone') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      setFormData({
+        ...formData,
+        phone: digitsOnly
+      });
+      return;
+    }
+
     setFormData({
       ...formData,
       [name]: value
@@ -25,6 +35,11 @@ function BookingModal({ isOpen, onClose, selectedItem }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!/^\d{10}$/.test(formData.phone)) {
+      alert('❌ Please enter a valid 10-digit phone number.');
+      return;
+    }
     
     // REMOVE the selectedItem validation that's causing the error
     // if (!selectedItem || !selectedItem.name || !selectedItem.price) {
@@ -45,7 +60,7 @@ function BookingModal({ isOpen, onClose, selectedItem }) {
         special_requests: formData.message
       };
 
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,6 +117,10 @@ function BookingModal({ isOpen, onClose, selectedItem }) {
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
+                inputMode="numeric"
+                pattern="\d{10}"
+                maxLength={10}
+                placeholder="Enter 10-digit phone number"
               />
             </div>
           </div>

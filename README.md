@@ -1,132 +1,115 @@
-# React + Vite
+# Chef Srinivas's Kitchen 🍽️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, full-stack chef booking and catering management application built with React, Express, and Supabase.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
-# Chef Srinivas's Kitchen 
+---
 
 ## 🚀 Features
 
 ### Frontend Features
-- **Responsive Design** - Works perfectly on desktop, tablet, and mobile
-- **Modern UI/UX** - Clean, professional interface with smooth animations
-- **Interactive Components** - Dynamic contact form with validation
-- **Smooth Navigation** - One-page design with scroll-to-section functionality
+- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
+- **Modern UI/UX** - Clean, professional interface with interactive menus and booking flows
+- **Interactive Booking & Contact** - Dynamic booking modal and contact forms with validation
+- **Smooth Navigation** - Single-page experience with smooth section scrolling
 
-### Backend Features
-- **RESTful API** - Clean API endpoints for all operations
-- **Database Integration** - SQLite database for persistent data storage
-- **Admin Dashboard** - Complete message management system
-- **Error Handling** - Comprehensive error handling and validation
+### Backend & Database Features
+- **RESTful API** - Modular Express.js backend for bookings, contacts, and authentication
+- **Supabase (PostgreSQL)** - Cloud-hosted, high-performance database with connection pooling
+- **Admin Dashboard** - Secure admin panel for managing bookings and messages
+- **Authentication & Security** - Session-based authentication with bcrypt password hashing
 
 ### Admin Panel Features
-- 📋 **View All Messages** - See all customer inquiries in a organized table
-- 🔍 **Search Functionality** - Search messages by name, email, or content
-- 📊 **Status Management** - Mark messages as read/unread
-- 🗑️ **Delete Messages** - Remove processed messages
-- 📱 **Responsive Design** - Manage messages from any device
+- 📋 **Order Management** - View, confirm, and manage catering booking requests
+- 📧 **Message Center** - View, search, and manage customer inquiries
+- 🔍 **Search & Filter** - Instantly find messages and orders
+- 🔒 **Security** - Protected routes and password reset capability
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React.js** - Modern frontend framework
-- **Vite** - Fast build tool and development server
-- **CSS3** - Custom responsive styling
-- **JavaScript ES6+** - Modern JavaScript features
+- **React.js** (Vite)
+- **CSS3** (Custom responsive styling)
+- **JavaScript (ES6+)**
 
 ### Backend
-- **Node.js** - Server-side runtime environment
-- **Express.js** - Web application framework
-- **SQLite3** - Lightweight database
-- **CORS** - Cross-origin resource sharing
+- **Node.js** & **Express.js**
+- **Supabase** (`@supabase/supabase-js` / PostgreSQL `pg`)
+- **bcryptjs** (Password hashing)
+- **express-session** (Session authentication)
 
-### Development Tools
-- **Git** - Version control
-- **GitHub** - Code repository and collaboration
-- **VS Code** - Development environment
+---
 
 ## 📦 Installation & Setup
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn package manager
-- Git
-
-### Step 1: Clone the Repository
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/praveen7386626080/chef-booking-app.git
 cd chef-booking-app
+```
 
-#Install Frontend Dependencies:
+### 2. Install Dependencies
+```bash
+# Frontend
 npm install
 
-
-
-#Install Backend Dependencies:
+# Backend
 cd chef-backend
 npm install
 cd ..
+```
 
+### 3. Configure Supabase Environment Variables
+Create or edit `chef-backend/.env`:
+```env
+PORT=5000
+NODE_ENV=development
+SESSION_SECRET=your-secret-key
+ADMIN_USER=admin
+ADMIN_PASSWORD=Praveen@123
 
-## Start the Development Servers:
+# Supabase Credentials
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
 
-#Terminal 1 - Backend Server:
+### 4. Run Development Servers
+```bash
+# Terminal 1: Backend
 cd chef-backend
 npm run dev
-Server runs on: http://localhost:5000
 
-#Terminal 2 - Frontend Server:
+# Terminal 2: Frontend
 npm run dev
-Frontend runs on http://localhost:5173
+```
 
+---
 
-🎯 Usage For Customers:
+## 📁 Project Structure
 
-1. Visit the website and browse services
-2 .Fill out the contact form with your inquiry
-3. Receive confirmation and wait for chef's response
-
-
-### For Admin (Chef Srinivas)
-
-1. Navigate to the Admin section
-2. View all customer messages in the dashboard
-3. Mark messages as read/unread
-4. Search and filter messages as needed
-5. Delete processed messages
-
-
-
-📁 Project Structure:
-
+```text
 chef-booking-app/
 ├── chef-backend/                 # Backend server
-│   ├── server.js                # Express server setup
-│   ├── database.js              # SQLite database configuration
+│   ├── server.js                # Express API server & static SPA serving
+│   ├── database.js              # Supabase database connection module
+│   ├── routes/                  # Express routes (orders.js, etc.)
+│   ├── supabase_schema.sql      # Supabase PostgreSQL schema & tables
 │   ├── package.json             # Backend dependencies
 │   └── .env                     # Environment variables
-├── src/                         # Frontend React application
-│   ├── components/              # React components
+├── src/                         # React frontend
+│   ├── Components/              # React components
 │   │   ├── Header.jsx           # Navigation header
 │   │   ├── Hero.jsx             # Hero section
-│   │   ├── Menu.jsx             # Services menu
+│   │   ├── Menu.jsx             # Services & dish menu
+│   │   ├── BookingModal.jsx     # Booking modal
 │   │   ├── About.jsx            # About section
 │   │   ├── Contact.jsx          # Contact form
-│   │   ├── Admin.jsx            # Admin panel
-│   │   └── Footer.jsx           # Footer section
+│   │   ├── Admin.jsx            # Admin dashboard
+│   │   └── Footer.jsx           # Footer
 │   ├── App.jsx                  # Main App component
-│   ├── App.css                  # Global styles
-│   └── main.jsx                 # React entry point
-├── package.json                 # Frontend dependencies
-├── index.html                   # HTML template
-└── README.md                    # Project documentation
-
-
+│   └── main.jsx                 # Entry point
+├── render.yaml                  # Render deployment configuration
+└── package.json                 # Frontend dependencies
+```
