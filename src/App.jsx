@@ -1,13 +1,13 @@
 // App.jsx - FIXED VERSION with WhatsApp Button
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import Menu from './components/Menu';
-import About from './components/About';
-import Contact from './components/Contact';
-import Admin from './components/Admin';
-import Footer from './components/Footer';
+import Header from './Components/Header';
+import Hero from './Components/Hero';
+import Menu from './Components/Menu';
+import About from './Components/About';
+import Contact from './Components/Contact';
+import Admin from './Components/Admin';
+import Footer from './Components/Footer';
 import './App.css';
 
 function HomePage() {
