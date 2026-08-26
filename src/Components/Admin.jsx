@@ -1,5 +1,23 @@
-// src/Components/Admin.jsx - RESPONSIVE & TOUCH-FRIENDLY ADMIN DASHBOARD
+// src/Components/Admin.jsx - RESPONSIVE ADMIN DASHBOARD WITH SHOW/HIDE PASSWORD TOGGLE
 import { useState, useEffect } from 'react';
+
+// Eye Icon components for show/hide password toggle
+function EyeIcon({ visible }) {
+  if (visible) {
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+      </svg>
+    );
+  }
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  );
+}
 
 function Admin() {
   const [contacts, setContacts] = useState([]);
@@ -8,16 +26,26 @@ function Admin() {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+
+  // Reset password states
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetUsername, setResetUsername] = useState('');
   const [resetPassword, setResetPassword] = useState('');
   const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false);
   const [resetMsg, setResetMsg] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
+
+  // Change password states
   const [showChangePwd, setShowChangePwd] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changingPwd, setChangingPwd] = useState(false);
   const [changePwdMsg, setChangePwdMsg] = useState('');
 
@@ -379,48 +407,90 @@ function Admin() {
                 <label htmlFor="resetPassword" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
                   New Password
                 </label>
-                <input
-                  id="resetPassword"
-                  name="resetPassword"
-                  type="password"
-                  required
-                  value={resetPassword}
-                  onChange={(e) => setResetPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1.5px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '16px',
-                    color: '#1f2937',
-                    outline: 'none'
-                  }}
-                  placeholder="Enter new password (min 8 chars)"
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    id="resetPassword"
+                    name="resetPassword"
+                    type={showResetPassword ? "text" : "password"}
+                    required
+                    value={resetPassword}
+                    onChange={(e) => setResetPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 2.75rem 0.75rem 0.75rem',
+                      border: '1.5px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '16px',
+                      color: '#1f2937',
+                      outline: 'none'
+                    }}
+                    placeholder="Enter new password (min 8 chars)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetPassword(prev => !prev)}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#6b7280',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px'
+                    }}
+                    aria-label={showResetPassword ? "Hide password" : "Show password"}
+                  >
+                    <EyeIcon visible={showResetPassword} />
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="resetConfirmPassword" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
                   Confirm Password
                 </label>
-                <input
-                  id="resetConfirmPassword"
-                  name="resetConfirmPassword"
-                  type="password"
-                  required
-                  value={resetConfirmPassword}
-                  onChange={(e) => setResetConfirmPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1.5px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '16px',
-                    color: '#1f2937',
-                    outline: 'none'
-                  }}
-                  placeholder="Confirm new password"
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    id="resetConfirmPassword"
+                    name="resetConfirmPassword"
+                    type={showResetConfirmPassword ? "text" : "password"}
+                    required
+                    value={resetConfirmPassword}
+                    onChange={(e) => setResetConfirmPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 2.75rem 0.75rem 0.75rem',
+                      border: '1.5px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '16px',
+                      color: '#1f2937',
+                      outline: 'none'
+                    }}
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetConfirmPassword(prev => !prev)}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#6b7280',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px'
+                    }}
+                    aria-label={showResetConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    <EyeIcon visible={showResetConfirmPassword} />
+                  </button>
+                </div>
               </div>
 
               {resetMsg && (
@@ -540,24 +610,46 @@ function Admin() {
               <label htmlFor="password" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={loginData.password}
-                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1.5px solid #d1d5db',
-                  borderRadius: '0.5rem',
-                  fontSize: '16px',
-                  color: '#1f2937',
-                  outline: 'none'
-                }}
-                placeholder="Enter admin password"
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  id="password"
+                  name="password"
+                  type={showLoginPassword ? "text" : "password"}
+                  required
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 2.75rem 0.75rem 0.75rem',
+                    border: '1.5px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '16px',
+                    color: '#1f2937',
+                    outline: 'none'
+                  }}
+                  placeholder="Enter admin password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(prev => !prev)}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#6b7280',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '6px'
+                  }}
+                  aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                  title={showLoginPassword ? "Hide password" : "Show password"}
+                >
+                  <EyeIcon visible={showLoginPassword} />
+                </button>
+              </div>
             </div>
 
             <button
@@ -716,33 +808,65 @@ function Admin() {
               <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '600' }}>Old Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="Enter current password" 
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
-                  />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input 
+                      type={showOldPassword ? "text" : "password"} 
+                      placeholder="Enter current password" 
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      style={{ width: '100%', padding: '0.65rem 2.5rem 0.65rem 0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOldPassword(prev => !prev)}
+                      style={{ position: 'absolute', right: '6px', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                      aria-label={showOldPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon visible={showOldPassword} />
+                    </button>
+                  </div>
                 </div>
+
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '600' }}>New Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="New password (min 8 chars)" 
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
-                  />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input 
+                      type={showNewPassword ? "text" : "password"} 
+                      placeholder="New password (min 8 chars)" 
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      style={{ width: '100%', padding: '0.65rem 2.5rem 0.65rem 0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(prev => !prev)}
+                      style={{ position: 'absolute', right: '6px', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                      aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon visible={showNewPassword} />
+                    </button>
+                  </div>
                 </div>
+
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '600' }}>Confirm New Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="Confirm new password" 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
-                  />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"} 
+                      placeholder="Confirm new password" 
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      style={{ width: '100%', padding: '0.65rem 2.5rem 0.65rem 0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(prev => !prev)}
+                      style={{ position: 'absolute', right: '6px', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon visible={showConfirmPassword} />
+                    </button>
+                  </div>
                 </div>
 
                 {changePwdMsg && (
