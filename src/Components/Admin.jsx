@@ -1,4 +1,4 @@
-// src/components/Admin.jsx
+// src/Components/Admin.jsx - RESPONSIVE & TOUCH-FRIENDLY ADMIN DASHBOARD
 import { useState, useEffect } from 'react';
 
 function Admin() {
@@ -28,7 +28,7 @@ function Admin() {
 
   const checkAuth = async () => {
     try {
-  const response = await fetch('/api/admin/check-auth', { credentials: 'include' });
+      const response = await fetch('/api/admin/check-auth', { credentials: 'include' });
       if (!response.ok) {
         console.warn('check-auth returned non-OK status', response.status);
         return;
@@ -47,7 +47,7 @@ function Admin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-  const response = await fetch('/api/admin/login', {
+      const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ function Admin() {
   // Logout function
   const handleLogout = async () => {
     try {
-  await fetch('/api/admin/logout', {
+      await fetch('/api/admin/logout', {
         method: 'POST',
         credentials: 'include',
       });
@@ -134,7 +134,6 @@ function Admin() {
     e?.preventDefault?.();
     setChangePwdMsg('');
 
-    // Basic client-side validation
     if (!oldPassword || !newPassword || !confirmPassword) {
       setChangePwdMsg('Please fill all fields');
       return;
@@ -166,11 +165,9 @@ function Admin() {
       const data = await response.json();
       if (data.success) {
         setChangePwdMsg('Password updated successfully');
-        // clear fields
         setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
-        // keep message visible briefly then close modal
         setTimeout(() => {
           setShowChangePwd(false);
           setChangePwdMsg('');
@@ -189,7 +186,7 @@ function Admin() {
   // Fetch contacts from backend
   const fetchContacts = async () => {
     try {
-  const response = await fetch('/api/contacts', { credentials: 'include' });
+      const response = await fetch('/api/contacts', { credentials: 'include' });
       if (!response.ok) {
         console.error('Failed to fetch contacts, status:', response.status);
         return;
@@ -208,7 +205,7 @@ function Admin() {
   // Fetch orders from backend
   const fetchOrders = async () => {
     try {
-  const response = await fetch('/api/orders', { credentials: 'include' });
+      const response = await fetch('/api/orders', { credentials: 'include' });
       if (!response.ok) {
         console.error('Failed to fetch orders, status:', response.status);
         return;
@@ -239,7 +236,7 @@ function Admin() {
     if (!window.confirm('Are you sure you want to delete this message?')) return;
     
     try {
-  const response = await fetch(`/api/contacts/${id}`, {
+      const response = await fetch(`/api/contacts/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -262,7 +259,7 @@ function Admin() {
   // Update order status
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-  const response = await fetch(`/api/orders/${orderId}/status`, {
+      const response = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +290,7 @@ function Admin() {
     if (!window.confirm('Are you sure you want to delete this order?')) return;
     
     try {
-  const response = await fetch(`/api/orders/${orderId}`, {
+      const response = await fetch(`/api/orders/${orderId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -317,141 +314,117 @@ function Admin() {
   if (!isAuthenticated) {
     if (showForgotPassword) {
       return (
-        <section className="hero admin-hero" style={{
-          paddingTop: '80px',
-          paddingBottom: '40px'
-        }}>
+        <section className="hero" style={{ minHeight: '100vh', padding: '100px 1rem 40px' }}>
           <div style={{
-            maxWidth: '400px',
+            maxWidth: '420px',
             width: '100%',
-            backgroundColor: 'white',
-            padding: '2rem',
-            borderRadius: '0.75rem',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            margin: '0 1rem'
+            backgroundColor: '#ffffff',
+            padding: 'clamp(1.5rem, 5vw, 2.25rem)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--shadow-xl)',
+            margin: '0 auto'
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
               <div style={{
-                margin: '0 auto 1rem auto',
-                width: '3rem',
-                height: '3rem',
+                margin: '0 auto 0.75rem',
+                width: '3.25rem',
+                height: '3.25rem',
                 backgroundColor: '#2563eb',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
-                fontSize: '1.25rem'
+                fontSize: '1.5rem'
               }}>
                 🔑
               </div>
               <h1 style={{
-                fontSize: '1.875rem',
-                fontWeight: 'bold',
+                fontSize: 'clamp(1.35rem, 4vw, 1.75rem)',
+                fontWeight: '700',
                 color: '#1f2937',
-                marginBottom: '0.5rem'
+                marginBottom: '0.35rem'
               }}>
                 Reset Admin Password
               </h1>
-              <p style={{ color: '#6b7280' }}>Enter your admin username and new password.</p>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>Enter your admin username and new password.</p>
             </div>
 
-            <form onSubmit={handleResetPassword} style={{ marginTop: '2rem' }}>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="resetUsername" style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    Username
-                  </label>
-                  <input
-                    id="resetUsername"
-                    name="resetUsername"
-                    type="text"
-                    required
-                    value={resetUsername}
-                    onChange={(e) => setResetUsername(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.875rem',
-                      color: '#1f2937',
-                      outline: 'none',
-                      transition: 'border-color 0.2s, box-shadow 0.2s'
-                    }}
-                    placeholder="Enter your username"
-                  />
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="resetPassword" style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    New Password
-                  </label>
-                  <input
-                    id="resetPassword"
-                    name="resetPassword"
-                    type="password"
-                    required
-                    value={resetPassword}
-                    onChange={(e) => setResetPassword(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.875rem',
-                      color: '#1f2937',
-                      outline: 'none',
-                      transition: 'border-color 0.2s, box-shadow 0.2s'
-                    }}
-                    placeholder="Enter new password"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="resetConfirmPassword" style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    Confirm Password
-                  </label>
-                  <input
-                    id="resetConfirmPassword"
-                    name="resetConfirmPassword"
-                    type="password"
-                    required
-                    value={resetConfirmPassword}
-                    onChange={(e) => setResetConfirmPassword(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.875rem',
-                      color: '#1f2937',
-                      outline: 'none',
-                      transition: 'border-color 0.2s, box-shadow 0.2s'
-                    }}
-                    placeholder="Confirm new password"
-                  />
-                </div>
+            <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label htmlFor="resetUsername" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
+                  Username
+                </label>
+                <input
+                  id="resetUsername"
+                  name="resetUsername"
+                  type="text"
+                  required
+                  value={resetUsername}
+                  onChange={(e) => setResetUsername(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1.5px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '16px',
+                    color: '#1f2937',
+                    outline: 'none'
+                  }}
+                  placeholder="Enter your username"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="resetPassword" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
+                  New Password
+                </label>
+                <input
+                  id="resetPassword"
+                  name="resetPassword"
+                  type="password"
+                  required
+                  value={resetPassword}
+                  onChange={(e) => setResetPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1.5px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '16px',
+                    color: '#1f2937',
+                    outline: 'none'
+                  }}
+                  placeholder="Enter new password (min 8 chars)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="resetConfirmPassword" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
+                  Confirm Password
+                </label>
+                <input
+                  id="resetConfirmPassword"
+                  name="resetConfirmPassword"
+                  type="password"
+                  required
+                  value={resetConfirmPassword}
+                  onChange={(e) => setResetConfirmPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1.5px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '16px',
+                    color: '#1f2937',
+                    outline: 'none'
+                  }}
+                  placeholder="Confirm new password"
+                />
               </div>
 
               {resetMsg && (
-                <p style={{ color: resetMsg.includes('successfully') ? '#16a34a' : '#dc2626', marginBottom: '1rem' }}>
+                <p style={{ color: resetMsg.includes('successfully') ? '#16a34a' : '#dc2626', fontSize: '0.85rem', margin: 0 }}>
                   {resetMsg}
                 </p>
               )}
@@ -461,23 +434,23 @@ function Admin() {
                 disabled={resetLoading}
                 style={{
                   width: '100%',
-                  padding: '0.75rem 1rem',
+                  padding: '0.85rem 1rem',
                   border: 'none',
                   borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
+                  fontSize: '1rem',
+                  fontWeight: '600',
                   color: 'white',
                   backgroundColor: '#2563eb',
                   cursor: 'pointer',
-                  transition: 'background-color 0.2s'
+                  minHeight: '46px',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
               >
                 {resetLoading ? 'Resetting password...' : 'Reset Password'}
               </button>
             </form>
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+
+            <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
               <button
                 type="button"
                 onClick={() => { setShowForgotPassword(false); setResetMsg(''); }}
@@ -487,10 +460,11 @@ function Admin() {
                   color: '#2563eb',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
+                  fontWeight: '600',
                   textDecoration: 'underline'
                 }}
               >
-                Back to login
+                Back to Login
               </button>
             </div>
           </div>
@@ -499,167 +473,130 @@ function Admin() {
     }
 
     return (
-      <section className="hero admin-hero" style={{
-        paddingTop: '80px',
-        paddingBottom: '40px'
-      }}>
+      <section className="hero" style={{ minHeight: '100vh', padding: '100px 1rem 40px' }}>
         <div style={{
-          maxWidth: '400px',
+          maxWidth: '420px',
           width: '100%',
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '0.75rem',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          margin: '0 1rem'
+          backgroundColor: '#ffffff',
+          padding: 'clamp(1.5rem, 5vw, 2.25rem)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-xl)',
+          margin: '0 auto'
         }}>
-          {/* Logo/Header Section */}
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          {/* Logo/Header */}
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
             <div style={{
-              margin: '0 auto 1rem auto',
-              width: '3rem',
-              height: '3rem',
+              margin: '0 auto 0.75rem',
+              width: '3.25rem',
+              height: '3.25rem',
               backgroundColor: '#2563eb',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
-              fontSize: '1.25rem'
+              fontSize: '1.5rem'
             }}>
               👨‍🍳
             </div>
             <h1 style={{
-              fontSize: '1.875rem',
-              fontWeight: 'bold',
+              fontSize: 'clamp(1.35rem, 4vw, 1.75rem)',
+              fontWeight: '700',
               color: '#1f2937',
-              marginBottom: '0.5rem'
+              marginBottom: '0.25rem'
             }}>
               Chef Srinivas's Kitchen
             </h1>
-            <p style={{ color: '#6b7280' }}>Admin Portal</p>
+            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>Admin Secure Portal</p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleLogin} style={{ marginTop: '2rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label htmlFor="username" style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '0.5rem'
-                }}>
-                  Username
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={loginData.username}
-                  onChange={(e) => setLoginData({...loginData, username: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    color: '#1f2937',
-                    outline: 'none',
-                    transition: 'border-color 0.2s, box-shadow 0.2s'
-                  }}
-                  placeholder="Enter your username"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d1d5db';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '0.5rem'
-                }}>
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    color: '#1f2937',
-                    outline: 'none',
-                    transition: 'border-color 0.2s, box-shadow 0.2s'
-                  }}
-                  placeholder="Enter your password"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#eaedf3ff';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Login Button */}
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <button
-                type="submit"
+              <label htmlFor="username" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={loginData.username}
+                onChange={(e) => setLoginData({...loginData, username: e.target.value})}
                 style={{
                   width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
+                  padding: '0.75rem',
+                  border: '1.5px solid #d1d5db',
                   borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'white',
-                  backgroundColor: '#2563eb',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
+                  fontSize: '16px',
+                  color: '#1f2937',
+                  outline: 'none'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-              >
-                Sign in to Admin Panel
-              </button>
-            </div>
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button
-                type="button"
-                onClick={() => setShowForgotPassword(true)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#2563eb',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  textDecoration: 'underline'
-                }}
-              >
-                Forgot your password?
-              </button>
+                placeholder="Enter admin username"
+              />
             </div>
             
-            </form>
+            <div>
+              <label htmlFor="password" style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' }}>
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={loginData.password}
+                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1.5px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  fontSize: '16px',
+                  color: '#1f2937',
+                  outline: 'none'
+                }}
+                placeholder="Enter admin password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '0.85rem 1rem',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'white',
+                backgroundColor: '#2563eb',
+                cursor: 'pointer',
+                minHeight: '46px',
+                marginTop: '0.5rem',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+              }}
+            >
+              Sign in to Dashboard
+            </button>
+          </form>
+
+          <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#2563eb',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                textDecoration: 'underline'
+              }}
+            >
+              Forgot your password?
+            </button>
+          </div>
         </div>
       </section>
     );
@@ -673,161 +610,160 @@ function Admin() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: '80px'
+        padding: '100px 1rem 40px'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            animation: 'spin 1s linear infinite',
             borderRadius: '50%',
             height: '3rem',
             width: '3rem',
             border: '4px solid #2563eb',
             borderTopColor: 'transparent',
-            margin: '0 auto 1rem auto'
+            margin: '0 auto 1rem',
+            animation: 'spin 1s linear infinite'
           }}></div>
-          <p style={{ color: '#6b7280' }}>Loading Admin Panel...</p>
+          <p style={{ color: '#6b7280', fontWeight: '500' }}>Loading Admin Panel...</p>
         </div>
-        <style>
-          {`
-            @keyframes spin {
-              to { transform: rotate(360deg); }
-            }
-          `}
-        </style>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f9fafb',
-      padding: '100px 1rem 2rem 1rem'
-    }}>
+    <div className="admin-container">
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '0.5rem',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          padding: '1.5rem',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}>
+        
+        {/* Dashboard Header Card */}
+        <div className="admin-header-card">
+          <div className="admin-header-row">
             <div>
               <h1 style={{
-                fontSize: '1.875rem',
-                fontWeight: 'bold',
+                fontSize: 'clamp(1.4rem, 4vw, 1.875rem)',
+                fontWeight: '800',
                 color: '#1f2937',
-                marginBottom: '0.5rem'
+                marginBottom: '0.25rem'
               }}>
                 Admin Dashboard
               </h1>
-              <p style={{ color: '#6b7280' }}>Manage messages and orders</p>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>Manage incoming customer inquiries & bookings</p>
             </div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              flexWrap: 'wrap'
-            }}>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>Total Messages</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{contacts.length}</p>
+
+            {/* Stats and Controls */}
+            <div className="admin-stats-group">
+              <div className="admin-stat-item">
+                <p style={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Messages</p>
+                <p style={{ fontSize: '1.4rem', fontWeight: '800', color: '#2563eb', margin: 0 }}>{contacts.length}</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>Total Orders</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>{orders.length}</p>
+
+              <div className="admin-stat-item">
+                <p style={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Orders</p>
+                <p style={{ fontSize: '1.4rem', fontWeight: '800', color: '#059669', margin: 0 }}>{orders.length}</p>
               </div>
-              <button
-                onClick={handleLogout}
-                style={{
-                  backgroundColor: '#dc2626',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
-                  fontWeight: '500'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
-              >
-                🚪 Logout
-              </button>
+
               <button
                 onClick={() => setShowChangePwd(prev => !prev)}
                 style={{
                   backgroundColor: '#2563eb',
                   color: 'white',
-                  padding: '0.5rem 1rem',
+                  padding: '0.6rem 1rem',
                   border: 'none',
                   borderRadius: '0.375rem',
                   cursor: 'pointer',
-                  transition: 'background-color 0.2s',
-                  fontWeight: '500'
+                  fontWeight: '600',
+                  fontSize: '0.85rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
               >
-                🔒 Change Password
+                🔒 Change Pwd
+              </button>
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  padding: '0.6rem 1rem',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.85rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
+              >
+                🚪 Logout
               </button>
             </div>
           </div>
         </div>
 
-        {/* Change password modal */}
+        {/* Change Password Modal */}
         {showChangePwd && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 2000
-          }} onClick={() => { setShowChangePwd(false); setChangePwdMsg(''); }}>
-            <div role="dialog" aria-modal="true" aria-labelledby="change-pwd-title" style={{
-              backgroundColor: 'white',
-              borderRadius: '0.5rem',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-              padding: '1.25rem',
-              maxWidth: '420px',
-              width: '100%'
-            }} onClick={(e) => e.stopPropagation()}>
-              <h3 id="change-pwd-title" style={{ margin: 0, marginBottom: '0.5rem' }}>Change Password</h3>
-              <form onSubmit={handleChangePassword}>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Old password</label>
-                  <input type="password" placeholder="Old password" value={oldPassword}
+          <div 
+            className="modal-overlay" 
+            onClick={() => { setShowChangePwd(false); setChangePwdMsg(''); }}
+          >
+            <div 
+              className="modal-content"
+              style={{ maxWidth: '420px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Change Password</h3>
+              <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '600' }}>Old Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="Enter current password" 
+                    value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }} />
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
+                  />
                 </div>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>New password</label>
-                  <input type="password" placeholder="New password" value={newPassword}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '600' }}>New Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="New password (min 8 chars)" 
+                    value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }} />
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
+                  />
                 </div>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Confirm new password</label>
-                  <input type="password" placeholder="Confirm new password" value={confirmPassword}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '600' }}>Confirm New Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="Confirm new password" 
+                    value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }} />
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', fontSize: '16px' }} 
+                  />
                 </div>
-                {changePwdMsg && <div style={{ marginBottom: '0.5rem', color: '#dc2626' }}>{changePwdMsg}</div>}
-                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                  <button type="button" onClick={() => { setShowChangePwd(false); setChangePwdMsg(''); }} style={{ padding: '0.5rem 0.75rem', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}>
+
+                {changePwdMsg && (
+                  <div style={{ color: changePwdMsg.includes('successfully') ? '#16a34a' : '#dc2626', fontSize: '0.85rem' }}>
+                    {changePwdMsg}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <button 
+                    type="button" 
+                    onClick={() => { setShowChangePwd(false); setChangePwdMsg(''); }} 
+                    style={{ padding: '0.6rem 1rem', backgroundColor: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: '600' }}
+                  >
                     Cancel
                   </button>
-                  <button type="submit" disabled={changingPwd} style={{ padding: '0.5rem 0.75rem', backgroundColor: '#059669', color: 'white', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}>
+                  <button 
+                    type="submit" 
+                    disabled={changingPwd} 
+                    style={{ padding: '0.6rem 1.25rem', backgroundColor: '#059669', color: 'white', border: 'none', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: '600' }}
+                  >
                     {changingPwd ? 'Updating...' : 'Update Password'}
                   </button>
                 </div>
@@ -836,65 +772,31 @@ function Admin() {
           </div>
         )}
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation Bar */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '0.5rem',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          padding: '1rem',
+          backgroundColor: '#ffffff',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-sm)',
+          padding: '0.85rem',
           marginBottom: '1.5rem'
         }}>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className="admin-tabs-bar">
             <button
               onClick={() => setActiveTab('messages')}
+              className="admin-tab-btn"
               style={{
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                ...(activeTab === 'messages' 
-                  ? { backgroundColor: '#2563eb', color: 'white' }
-                  : { backgroundColor: '#e5e7eb', color: '#374151' }
-                )
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'messages') {
-                  e.target.style.backgroundColor = '#d1d5db';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'messages') {
-                  e.target.style.backgroundColor = '#e5e7eb';
-                }
+                backgroundColor: activeTab === 'messages' ? '#2563eb' : '#f1f5f9',
+                color: activeTab === 'messages' ? '#ffffff' : '#334155'
               }}
             >
               📧 Messages ({contacts.length})
             </button>
             <button
               onClick={() => setActiveTab('orders')}
+              className="admin-tab-btn"
               style={{
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                ...(activeTab === 'orders' 
-                  ? { backgroundColor: '#059669', color: 'white' }
-                  : { backgroundColor: '#e5e7eb', color: '#374151' }
-                )
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'orders') {
-                  e.target.style.backgroundColor = '#d1d5db';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'orders') {
-                  e.target.style.backgroundColor = '#e5e7eb';
-                }
+                backgroundColor: activeTab === 'orders' ? '#059669' : '#f1f5f9',
+                color: activeTab === 'orders' ? '#ffffff' : '#334155'
               }}
             >
               📦 Orders ({orders.length})
@@ -904,55 +806,38 @@ function Admin() {
 
         {/* Messages Tab */}
         {activeTab === 'messages' && (
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden'
-          }}>
-            <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937' }}>
-                Contact Messages
+          <div className="admin-table-container">
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+                Customer Messages ({contacts.length})
               </h2>
             </div>
             
             {contacts.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📧</div>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-                  No Messages
+              <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📧</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#374151', margin: '0 0 0.25rem 0' }}>
+                  No Messages Yet
                 </h3>
-                <p style={{ color: '#6b7280' }}>No contact messages yet.</p>
+                <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: 0 }}>Customer inquiries will appear here.</p>
               </div>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead style={{ backgroundColor: '#f9fafb' }}>
+                  <thead style={{ backgroundColor: '#f8fafc' }}>
                     <tr>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Name
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Email
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Message
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Date
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Status
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Actions
-                      </th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Customer</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Email</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', minWidth: '220px' }}>Message</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Date</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Status</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody style={{ backgroundColor: 'white' }}>
+                  <tbody>
                     {contacts.map((contact) => (
-                      <tr key={contact.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                      <tr key={contact.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             <div style={{
                               width: '2rem',
@@ -964,59 +849,51 @@ function Admin() {
                               justifyContent: 'center',
                               color: 'white',
                               fontWeight: 'bold',
-                              marginRight: '0.75rem',
-                              fontSize: '0.875rem'
+                              marginRight: '0.65rem',
+                              fontSize: '0.8rem'
                             }}>
-                              {contact.name.charAt(0).toUpperCase()}
+                              {contact.name ? contact.name.charAt(0).toUpperCase() : '?'}
                             </div>
-                            <span style={{ fontWeight: '500', color: '#1f2937' }}>{contact.name}</span>
+                            <span style={{ fontWeight: '600', color: '#1f2937' }}>{contact.name}</span>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', color: '#6b7280' }}>{contact.email}</td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
-                          <div style={{ maxWidth: '200px' }}>
-                            <p style={{ color: '#374151', fontSize: '0.875rem', lineHeight: '1.25', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                              {contact.message}
-                            </p>
-                          </div>
+                        <td style={{ padding: '0.85rem 1.25rem', color: '#64748b', fontSize: '0.875rem' }}>{contact.email}</td>
+                        <td style={{ padding: '0.85rem 1.25rem' }}>
+                          <p style={{ color: '#334155', fontSize: '0.875rem', lineHeight: '1.4', margin: 0 }}>
+                            {contact.message}
+                          </p>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
-                          {new Date(contact.created_at).toLocaleDateString()}
+                        <td style={{ padding: '0.85rem 1.25rem', fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                          {contact.created_at ? new Date(contact.created_at).toLocaleDateString() : 'Recent'}
                         </td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
                           <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            padding: '0.25rem 0.625rem',
+                            display: 'inline-block',
+                            padding: '0.25rem 0.6rem',
                             borderRadius: '9999px',
                             fontSize: '0.75rem',
-                            fontWeight: '500',
-                            ...(contact.status === 'read' 
-                              ? { backgroundColor: '#d1fae5', color: '#065f46' }
-                              : { backgroundColor: '#fef3c7', color: '#92400e' }
-                            )
+                            fontWeight: '600',
+                            backgroundColor: contact.status === 'read' ? '#dcfce7' : '#fef3c7',
+                            color: contact.status === 'read' ? '#166534' : '#92400e'
                           }}>
-                            {contact.status}
+                            {contact.status || 'new'}
                           </span>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
                           <button
                             onClick={() => deleteContact(contact.id)}
                             style={{
-                              backgroundColor: '#dc2626',
-                              color: 'white',
-                              padding: '0.5rem 0.75rem',
-                              border: 'none',
+                              backgroundColor: '#fee2e2',
+                              color: '#dc2626',
+                              padding: '0.4rem 0.75rem',
+                              border: '1px solid #fecaca',
                               borderRadius: '0.375rem',
                               fontSize: '0.75rem',
-                              fontWeight: '500',
-                              cursor: 'pointer',
-                              transition: 'background-color 0.2s'
+                              fontWeight: '600',
+                              cursor: 'pointer'
                             }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
                           >
-                            Delete
+                            🗑️ Delete
                           </button>
                         </td>
                       </tr>
@@ -1030,64 +907,43 @@ function Admin() {
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden'
-          }}>
-            <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937' }}>
-                Order Management
+          <div className="admin-table-container">
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+                Orders & Bookings ({orders.length})
               </h2>
             </div>
             
             {orders.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📦</div>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-                  No Orders
+              <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📦</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#374151', margin: '0 0 0.25rem 0' }}>
+                  No Orders Placed
                 </h3>
-                <p style={{ color: '#6b7280' }}>No orders placed yet.</p>
+                <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: 0 }}>Customer bookings will appear here.</p>
               </div>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead style={{ backgroundColor: '#f9fafb' }}>
+                  <thead style={{ backgroundColor: '#f8fafc' }}>
                     <tr>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Order ID
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Customer
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Phone
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Dish
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Date
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Guests
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Status
-                      </th>
-                      <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
-                        Actions
-                      </th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Order ID</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Customer</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Phone</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Dish</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Date</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Guests</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Status</th>
+                      <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody style={{ backgroundColor: 'white' }}>
+                  <tbody>
                     {orders.map((order) => (
-                      <tr key={order.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        <td style={{ padding: '1rem 1.5rem', fontFamily: 'monospace', fontSize: '0.875rem', color: '#6b7280' }}>
+                      <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', fontFamily: 'monospace', fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap' }}>
                           #{order.id}
                         </td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             <div style={{
                               width: '2rem',
@@ -1099,50 +955,47 @@ function Admin() {
                               justifyContent: 'center',
                               color: 'white',
                               fontWeight: 'bold',
-                              marginRight: '0.75rem',
-                              fontSize: '0.875rem'
+                              marginRight: '0.65rem',
+                              fontSize: '0.8rem'
                             }}>
-                              {order.customer_name.charAt(0).toUpperCase()}
+                              {order.customer_name ? order.customer_name.charAt(0).toUpperCase() : '?'}
                             </div>
                             <div>
-                              <div style={{ fontWeight: '500', color: '#1f2937' }}>{order.customer_name}</div>
-                              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{order.customer_email}</div>
+                              <div style={{ fontWeight: '600', color: '#1f2937' }}>{order.customer_name}</div>
+                              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{order.customer_email}</div>
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', color: '#6b7280' }}>{order.customer_phone}</td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
-                          <div>
-                            <div style={{ fontWeight: '500', color: '#1f2937' }}>{order.dish_name}</div>
-                            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{order.dish_price}</div>
-                          </div>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
+                          <a href={`tel:${order.customer_phone}`} style={{ color: '#2563eb', fontWeight: '600', fontSize: '0.875rem' }}>
+                            {order.customer_phone}
+                          </a>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#374151' }}>
+                        <td style={{ padding: '0.85rem 1.25rem' }}>
+                          <div style={{ fontWeight: '600', color: '#1f2937', whiteSpace: 'nowrap' }}>{order.dish_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{order.dish_price}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1.25rem', fontSize: '0.85rem', color: '#334155', whiteSpace: 'nowrap' }}>
                           {order.booking_date}
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', fontWeight: '600', color: '#1f2937' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', fontWeight: '700', color: '#1f2937', whiteSpace: 'nowrap' }}>
                           {order.number_of_guests}
                         </td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
                           <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            padding: '0.25rem 0.625rem',
+                            display: 'inline-block',
+                            padding: '0.25rem 0.6rem',
                             borderRadius: '9999px',
                             fontSize: '0.75rem',
-                            fontWeight: '500',
-                            ...(order.status === 'confirmed' 
-                              ? { backgroundColor: '#d1fae5', color: '#065f46' }
-                              : order.status === 'cancelled'
-                              ? { backgroundColor: '#fee2e2', color: '#991b1b' }
-                              : { backgroundColor: '#fef3c7', color: '#92400e' }
-                            )
+                            fontWeight: '600',
+                            backgroundColor: order.status === 'confirmed' ? '#dcfce7' : order.status === 'cancelled' ? '#fee2e2' : '#fef3c7',
+                            color: order.status === 'confirmed' ? '#166534' : order.status === 'cancelled' ? '#991b1b' : '#92400e'
                           }}>
                             {order.status}
                           </span>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem' }}>
-                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'nowrap' }}>
                             {order.status === 'pending' && (
                               <>
                                 <button
@@ -1150,56 +1003,47 @@ function Admin() {
                                   style={{
                                     backgroundColor: '#059669',
                                     color: 'white',
-                                    padding: '0.5rem 0.75rem',
+                                    padding: '0.35rem 0.6rem',
                                     border: 'none',
                                     borderRadius: '0.375rem',
                                     fontSize: '0.75rem',
-                                    fontWeight: '500',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.2s'
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
                                   }}
-                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
-                                  onMouseLeave={(e) => e.target.style.backgroundColor = '#059669'}
                                 >
-                                  Confirm
+                                  ✓ Confirm
                                 </button>
                                 <button
                                   onClick={() => updateOrderStatus(order.id, 'cancelled')}
                                   style={{
-                                    backgroundColor: '#dc2626',
-                                    color: 'white',
-                                    padding: '0.5rem 0.75rem',
+                                    backgroundColor: '#fee2e2',
+                                    color: '#dc2626',
+                                    padding: '0.35rem 0.6rem',
                                     border: 'none',
                                     borderRadius: '0.375rem',
                                     fontSize: '0.75rem',
-                                    fontWeight: '500',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.2s'
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
                                   }}
-                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                                  onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
                                 >
-                                  Cancel
+                                  ✕ Cancel
                                 </button>
                               </>
                             )}
                             <button
                               onClick={() => deleteOrder(order.id)}
                               style={{
-                                backgroundColor: '#6b7280',
-                                color: 'white',
-                                padding: '0.5rem 0.75rem',
-                                border: 'none',
+                                backgroundColor: '#f1f5f9',
+                                color: '#475569',
+                                padding: '0.35rem 0.6rem',
+                                border: '1px solid #cbd5e1',
                                 borderRadius: '0.375rem',
                                 fontSize: '0.75rem',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                transition: 'background-color 0.2s'
+                                fontWeight: '600',
+                                cursor: 'pointer'
                               }}
-                              onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-                              onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
                             >
-                              Delete
+                              🗑️
                             </button>
                           </div>
                         </td>
@@ -1216,15 +1060,4 @@ function Admin() {
   );
 }
 
-export default Admin;                                                         
-
-
-
-
-
-
-
-
-
-
-      
+export default Admin;

@@ -1,140 +1,115 @@
+// src/Components/About.jsx - RESPONSIVE MOBILE-FRIENDLY ABOUT CHEF
 import React from 'react';
 
 function About() {
   return (
-    <section 
-      className="about py-16 px-4" 
-      id="about"
-      style={{
-        background: 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center'
-      }}
-    >
-      <div className="max-w-4xl mx-auto" style={{width: '100%'}}>
+    <section className="about-section" id="about">
+      <div className="about-container">
         
-        {/* Header Section */}
-        <div style={{textAlign: 'center', marginBottom: '3rem'}}>
+        {/* Section Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <h2 style={{
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
+            fontSize: 'clamp(2rem, 5vw, 2.75rem)',
+            fontWeight: '800',
             color: '#7c2d12',
-            marginBottom: '1rem'
+            marginBottom: '0.75rem',
+            letterSpacing: '-0.02em'
           }}>
             About Chef Srinivas
           </h2>
           <div style={{
-            width: '96px',
+            width: '80px',
             height: '4px',
             backgroundColor: '#d97706',
-            margin: '0 auto 1.5rem auto',
+            margin: '0 auto 1.25rem',
             borderRadius: '2px'
           }}></div>
         </div>
 
-        {/* Content Section */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '1rem',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-          padding: '2rem',
-          marginBottom: '2rem'
-        }}>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+        {/* Content Card */}
+        <div className="about-card">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <p style={{
-              fontSize: '1.125rem',
+              fontSize: 'clamp(1rem, 2.5vw, 1.15rem)',
               color: '#374151',
               lineHeight: '1.75',
               textAlign: 'center',
               margin: 0
             }}>
-              With over <span style={{color: '#d97706', fontWeight: '600'}}>15 years of culinary experience</span>, 
-              Chef Srinivas brings a passion for authentic flavors and a commitment to excellence to every 
-              dining experience. Trained in both traditional Indian cuisine and international techniques, 
-              he creates memorable meals that delight the senses.
+              With over <span style={{ color: '#d97706', fontWeight: '700' }}>15 years of culinary mastery</span>, 
+              Chef Srinivas brings a passionate devotion to authentic Indian recipes and international culinary excellence. 
+              Trained extensively in royal regional cuisines and modern dining techniques, he crafts memorable meals that enchant the senses.
             </p>
             
             <p style={{
-              fontSize: '1.125rem',
+              fontSize: 'clamp(1rem, 2.5vw, 1.15rem)',
               color: '#374151',
               lineHeight: '1.75',
               textAlign: 'center',
               margin: 0
             }}>
-              Whether it's an <span style={{color: '#d97706', fontWeight: '600'}}>intimate dinner for two</span> or a 
-              large family gathering, Chef Srinivas customizes each menu to your preferences, using only the 
-              freshest, highest-quality ingredients. His goal is to provide not just a meal, but an 
-              <span style={{color: '#d97706', fontWeight: '600'}}> unforgettable event</span>.
+              Whether hosting an <span style={{ color: '#d97706', fontWeight: '700' }}>intimate family dinner</span> or a 
+              grand gathering of hundreds, Chef Srinivas customizes each menu using only the freshest, hand-picked ingredients to ensure an 
+              <span style={{ color: '#d97706', fontWeight: '700' }}> extraordinary dining celebration</span>.
             </p>
           </div>
 
-          {/* Additional Features */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1.5rem',
-            marginTop: '2.5rem'
-          }}>
-            <div style={{
-              textAlign: 'center',
-              padding: '1rem',
-              backgroundColor: '#fffbeb',
-              borderRadius: '0.5rem',
-              border: '2px solid #fed7aa'
-            }}>
-              <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>👨‍🍳</div>
-              <h3 style={{fontWeight: '600', color: '#7c2d12', margin: '0 0 0.25rem 0'}}>15+ Years</h3>
-              <p style={{fontSize: '0.875rem', color: '#d97706', margin: 0}}>Culinary Experience</p>
+          {/* Feature Badges Grid */}
+          <div className="about-badges-grid">
+            <div className="about-badge-card">
+              <div style={{ fontSize: '2.2rem', marginBottom: '0.35rem' }}>👨‍🍳</div>
+              <h3 style={{ fontWeight: '700', color: '#7c2d12', margin: '0 0 0.25rem 0', fontSize: '1.1rem' }}>
+                15+ Years
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: '#d97706', margin: 0, fontWeight: '500' }}>
+                Culinary Experience
+              </p>
             </div>
             
-            <div style={{
-              textAlign: 'center',
-              padding: '1rem',
-              backgroundColor: '#fffbeb',
-              borderRadius: '0.5rem',
-              border: '2px solid #fed7aa'
-            }}>
-              <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>🌍</div>
-              <h3 style={{fontWeight: '600', color: '#7c2d12', margin: '0 0 0.25rem 0'}}>International</h3>
-              <p style={{fontSize: '0.875rem', color: '#d97706', margin: 0}}>Training & Techniques</p>
+            <div className="about-badge-card">
+              <div style={{ fontSize: '2.2rem', marginBottom: '0.35rem' }}>🌍</div>
+              <h3 style={{ fontWeight: '700', color: '#7c2d12', margin: '0 0 0.25rem 0', fontSize: '1.1rem' }}>
+                Authentic & Global
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: '#d97706', margin: 0, fontWeight: '500' }}>
+                Diverse Gourmet Styles
+              </p>
             </div>
             
-            <div style={{
-              textAlign: 'center',
-              padding: '1rem',
-              backgroundColor: '#fffbeb',
-              borderRadius: '0.5rem',
-              border: '2px solid #fed7aa'
-            }}>
-              <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>⭐</div>
-              <h3 style={{fontWeight: '600', color: '#7c2d12', margin: '0 0 0.25rem 0'}}>Customized</h3>
-              <p style={{fontSize: '0.875rem', color: '#d97706', margin: 0}}>Menu Planning</p>
+            <div className="about-badge-card">
+              <div style={{ fontSize: '2.2rem', marginBottom: '0.35rem' }}>⭐</div>
+              <h3 style={{ fontWeight: '700', color: '#7c2d12', margin: '0 0 0.25rem 0', fontSize: '1.1rem' }}>
+                100% Customized
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: '#d97706', margin: 0, fontWeight: '500' }}>
+                Bespoke Menu Planning
+              </p>
             </div>
           </div>
 
-          {/* Signature */}
+          {/* Chef Signature Quote */}
           <div style={{
             textAlign: 'center',
             marginTop: '2rem',
             paddingTop: '1.5rem',
-            borderTop: '2px solid #fed7aa'
+            borderTop: '1.5px solid #fed7aa'
           }}>
             <p style={{
               color: '#7c2d12',
               fontWeight: '600',
               fontStyle: 'italic',
               margin: 0,
-              fontSize: '1.125rem'
+              fontSize: 'clamp(1rem, 2.5vw, 1.15rem)'
             }}>
-              "Creating memories one meal at a time"
+              "Creating timeless dining memories, one extraordinary dish at a time."
             </p>
             <p style={{
               color: '#d97706',
-              fontSize: '0.875rem',
-              margin: '0.25rem 0 0 0'
+              fontSize: '0.9rem',
+              fontWeight: '700',
+              margin: '0.35rem 0 0 0'
             }}>
-              - Chef Srinivas
+              — Chef Srinivas
             </p>
           </div>
         </div>

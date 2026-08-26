@@ -1,50 +1,38 @@
+// src/Components/Contact.jsx - RESPONSIVE TOUCH-OPTIMIZED CONTACT FORM
 import React, { useState } from 'react';
 
 function Contact() {
-  // Chef-inspired color themes (same as About component)
-  const themes = {
-    chefGold: {
-      background: 'linear-gradient(135deg, #fff9db 0%, #ffec99 50%, #fcc419 100%)',
-      primary: '#d6336c',
-      secondary: '#e67700', 
-      accent: '#5c940d',
-      textDark: '#2b2d42',
-      textLight: '#495057',
-      cardBg: '#fff9db',
-      border: '#ffd8a8'
-    }
-  };
-
-  const theme = themes.chefGold;
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', eventType: '', date: '', message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'phone') {
       const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
-      setFormData({ ...formData, phone: digitsOnly });
+      setFormData(prev => ({ ...prev, phone: digitsOnly }));
       return;
     }
 
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!/^\d{10}$/.test(formData.phone)) {
-      alert('Please enter a valid 10-digit phone number.');
+      alert('❌ Please enter a valid 10-digit phone number.');
       return;
     }
 
     if (!formData.message.trim()) {
-      alert('Please enter your message before sending.');
+      alert('❌ Please enter your event requirements or message.');
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -54,185 +42,172 @@ function Contact() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          message: formData.message
+          message: `[Event: ${formData.eventType || 'Not specified'} | Date: ${formData.date || 'Flexible'} | Phone: ${formData.phone}] - ${formData.message}`
         })
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        alert(data.message || 'Failed to send message. Please try again.');
+        alert(data.message || '❌ Failed to send message. Please try again.');
         return;
       }
 
-      alert(data.message || 'Thank you for your message! Chef Srinivas will get back to you soon.');
+      alert('✅ ' + (data.message || 'Thank you for your message! Chef Srinivas will get back to you shortly.'));
       setFormData({ name: '', email: '', phone: '', eventType: '', date: '', message: '' });
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Network error while sending message. Please try again later.');
+      alert('❌ Network error while sending message. Please check your connection.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <section 
-      className="contact py-16 px-4" 
-      id="contact"
-      style={{
-        background: theme.background,
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center'
-      }}
-    >
-      <div className="max-w-6xl mx-auto" style={{width: '100%'}}>
+    <section className="contact-section" id="contact">
+      <div style={{ maxWidth: '1150px', margin: '0 auto', width: '100%' }}>
         
-        {/* Header Section - Same as About */}
-        <div style={{textAlign: 'center', marginBottom: '3rem'}}>
+        {/* Section Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <h2 style={{
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            color: theme.textDark,
-            marginBottom: '1rem'
+            fontSize: 'clamp(2rem, 5vw, 2.75rem)',
+            fontWeight: '800',
+            color: '#2b2d42',
+            marginBottom: '0.75rem',
+            letterSpacing: '-0.02em'
           }}>
             Get In Touch With Chef Srinivas
           </h2>
           <div style={{
-            width: '96px',
+            width: '80px',
             height: '4px',
-            backgroundColor: theme.secondary,
-            margin: '0 auto 1.5rem auto',
+            backgroundColor: '#e67700',
+            margin: '0 auto 1.25rem',
             borderRadius: '2px'
           }}></div>
           <p style={{
-            fontSize: '1.2rem',
-            color: theme.textLight,
-            maxWidth: '600px',
+            fontSize: 'clamp(1rem, 2.5vw, 1.15rem)',
+            color: '#495057',
+            maxWidth: '620px',
             margin: '0 auto',
             lineHeight: '1.6'
           }}>
-            Ready to create an unforgettable dining experience? Let's discuss your event!
+            Ready to organize an unforgettable dining event? Tell us about your date, venue, and vision!
           </p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          alignItems: 'start'
-        }}>
+        {/* Contact Layout Grid */}
+        <div className="contact-layout-grid">
           
           {/* Contact Form */}
-          <div style={{
-            backgroundColor: theme.cardBg,
-            borderRadius: '1rem',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            padding: '2rem',
-            border: `2px solid ${theme.border}`
-          }}>
+          <div className="contact-card-box">
             <h3 style={{
-              fontSize: '1.8rem',
-              fontWeight: 'bold',
-              color: theme.textDark,
-              marginBottom: '1.5rem',
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              color: '#2b2d42',
+              marginBottom: '1.25rem',
               textAlign: 'center'
             }}>
-              Send a Message
+              Send an Inquiry
             </h3>
             
-            <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{
                   display: 'block',
-                  fontSize: '0.9rem',
+                  fontSize: '0.875rem',
                   fontWeight: '600',
-                  color: theme.textDark,
-                  marginBottom: '0.5rem'
-                }}>Full Name</label>
+                  color: '#2b2d42',
+                  marginBottom: '0.35rem'
+                }}>Your Full Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  placeholder="e.g. Priya Sundaram"
                   style={{
                     width: '100%',
-                    padding: '0.75rem',
-                    border: `2px solid ${theme.border}`,
+                    padding: '0.75rem 0.9rem',
+                    border: '1.5px solid #ffd8a8',
                     borderRadius: '0.5rem',
-                    fontSize: '1rem',
-                    backgroundColor: 'white',
+                    fontSize: '16px',
+                    backgroundColor: '#ffffff',
                     outline: 'none',
-                    transition: 'border-color 0.3s'
+                    transition: 'border-color 0.2s'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = theme.primary}
-                  onBlur={(e) => e.target.style.borderColor = theme.border}
-                  placeholder="Your full name"
                 />
               </div>
 
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+              {/* Responsive Row: Email & Phone */}
+              <div className="form-responsive-row">
                 <div>
                   <label style={{
                     display: 'block',
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: theme.textDark,
-                    marginBottom: '0.5rem'
-                  }}>Email</label>
+                    color: '#2b2d42',
+                    marginBottom: '0.35rem'
+                  }}>Email Address *</label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    placeholder="priya@example.com"
                     style={{
                       width: '100%',
-                      padding: '0.75rem',
-                      border: `2px solid ${theme.border}`,
+                      padding: '0.75rem 0.9rem',
+                      border: '1.5px solid #ffd8a8',
                       borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      backgroundColor: 'white'
+                      fontSize: '16px',
+                      backgroundColor: '#ffffff',
+                      outline: 'none'
                     }}
-                    placeholder="your@email.com"
                   />
                 </div>
                 <div>
                   <label style={{
                     display: 'block',
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: theme.textDark,
-                    marginBottom: '0.5rem'
-                  }}>Phone</label>
+                    color: '#2b2d42',
+                    marginBottom: '0.35rem'
+                  }}>Mobile Phone *</label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    inputMode="numeric"
+                    required
+                    inputMode="tel"
                     pattern="\d{10}"
                     maxLength={10}
+                    placeholder="10-digit number"
                     style={{
                       width: '100%',
-                      padding: '0.75rem',
-                      border: `2px solid ${theme.border}`,
+                      padding: '0.75rem 0.9rem',
+                      border: '1.5px solid #ffd8a8',
                       borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      backgroundColor: 'white'
+                      fontSize: '16px',
+                      backgroundColor: '#ffffff',
+                      outline: 'none'
                     }}
-                    placeholder="Enter 10-digit phone number"
                   />
                 </div>
               </div>
 
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+              {/* Responsive Row: Event Type & Date */}
+              <div className="form-responsive-row">
                 <div>
                   <label style={{
                     display: 'block',
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: theme.textDark,
-                    marginBottom: '0.5rem'
+                    color: '#2b2d42',
+                    marginBottom: '0.35rem'
                   }}>Event Type</label>
                   <select
                     name="eventType"
@@ -240,41 +215,45 @@ function Contact() {
                     onChange={handleChange}
                     style={{
                       width: '100%',
-                      padding: '0.75rem',
-                      border: `2px solid ${theme.border}`,
+                      padding: '0.75rem 0.9rem',
+                      border: '1.5px solid #ffd8a8',
                       borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      backgroundColor: 'white'
+                      fontSize: '16px',
+                      backgroundColor: '#ffffff',
+                      outline: 'none'
                     }}
                   >
-                    <option value="">Select event type</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="birthday">Birthday Party</option>
-                    <option value="corporate">Corporate Event</option>
-                    <option value="anniversary">Anniversary</option>
-                    <option value="other">Other</option>
+                    <option value="">Select Event Type</option>
+                    <option value="Wedding / Reception">Wedding / Reception</option>
+                    <option value="Birthday Party">Birthday Party</option>
+                    <option value="Corporate Dinner">Corporate Dinner</option>
+                    <option value="Anniversary Celebration">Anniversary Celebration</option>
+                    <option value="Private Home Dining">Private Home Dining</option>
+                    <option value="Other Celebration">Other Celebration</option>
                   </select>
                 </div>
                 <div>
                   <label style={{
                     display: 'block',
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: theme.textDark,
-                    marginBottom: '0.5rem'
-                  }}>Event Date</label>
+                    color: '#2b2d42',
+                    marginBottom: '0.35rem'
+                  }}>Target Date</label>
                   <input
                     type="date"
                     name="date"
                     value={formData.date}
                     onChange={handleChange}
+                    min={new Date().toISOString().split('T')[0]}
                     style={{
                       width: '100%',
-                      padding: '0.75rem',
-                      border: `2px solid ${theme.border}`,
+                      padding: '0.75rem 0.9rem',
+                      border: '1.5px solid #ffd8a8',
                       borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      backgroundColor: 'white'
+                      fontSize: '16px',
+                      backgroundColor: '#ffffff',
+                      outline: 'none'
                     }}
                   />
                 </div>
@@ -283,127 +262,166 @@ function Contact() {
               <div>
                 <label style={{
                   display: 'block',
-                  fontSize: '0.9rem',
+                  fontSize: '0.875rem',
                   fontWeight: '600',
-                  color: theme.textDark,
-                  marginBottom: '0.5rem'
-                }}>Message</label>
+                  color: '#2b2d42',
+                  marginBottom: '0.35rem'
+                }}>Your Requirements / Message *</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  rows="4"
+                  rows="3"
                   required
+                  placeholder="Tell us about expected guest count, favorite dishes, venue location, or dietary preferences..."
                   style={{
                     width: '100%',
-                    padding: '0.75rem',
-                    border: `2px solid ${theme.border}`,
+                    padding: '0.75rem 0.9rem',
+                    border: '1.5px solid #ffd8a8',
                     borderRadius: '0.5rem',
-                    fontSize: '1rem',
-                    backgroundColor: 'white',
-                    resize: 'vertical'
+                    fontSize: '16px',
+                    backgroundColor: '#ffffff',
+                    resize: 'vertical',
+                    outline: 'none'
                   }}
-                  placeholder="Tell us about your event requirements..."
-                ></textarea>
+                />
               </div>
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 style={{
                   width: '100%',
-                  padding: '1rem',
-                  backgroundColor: theme.primary,
-                  color: 'white',
+                  padding: '0.95rem 1.5rem',
+                  backgroundColor: '#d6336c',
+                  color: '#ffffff',
                   border: 'none',
                   borderRadius: '0.5rem',
                   fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s'
+                  fontWeight: '700',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s',
+                  minHeight: '48px',
+                  boxShadow: '0 4px 12px rgba(214, 51, 108, 0.3)'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#c2255c'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Send Message to Chef
+                {isSubmitting ? 'Sending Message...' : '📨 Send Message to Chef Srinivas'}
               </button>
             </form>
           </div>
 
-          {/* Contact Information */}
-          <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-            <div style={{
-              backgroundColor: theme.cardBg,
-              borderRadius: '1rem',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-              padding: '2rem',
-              border: `2px solid ${theme.border}`
-            }}>
+          {/* Contact Details & Chef Note */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="contact-card-box">
               <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: theme.textDark,
-                marginBottom: '1.5rem',
+                fontSize: '1.4rem',
+                fontWeight: '700',
+                color: '#2b2d42',
+                marginBottom: '1.25rem',
                 textAlign: 'center'
               }}>
-                Contact Information
+                Direct Contact
               </h3>
               
-              <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-                {[
-                  { icon: '📞', label: 'Phone', value: '+91 98765 43210' },
-                  { icon: '📧', label: 'Email', value: 'chef.srinivas@email.com' },
-                  { icon: '📍', label: 'Address', value: '123 Culinary Street, Food City, 560001' },
-                  { icon: '⏰', label: 'Response Time', value: 'Within 2 hours' }
-                ].map((item, index) => (
-                  <div key={index} style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                    <div style={{
-                      width: '50px',
-                      height: '50px',
-                      backgroundColor: theme.secondary,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.5rem'
-                    }}>
-                      {item.icon}
-                    </div>
-                    <div>
-                      <p style={{
-                        fontWeight: '600',
-                        color: theme.textDark,
-                        margin: '0 0 0.25rem 0'
-                      }}>{item.label}</p>
-                      <p style={{
-                        color: theme.primary,
-                        margin: 0,
-                        fontWeight: '500'
-                      }}>{item.value}</p>
-                    </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <a href="tel:+919876543210" className="contact-info-link">
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    backgroundColor: '#e67700',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.3rem',
+                    flexShrink: 0
+                  }}>
+                    📞
                   </div>
-                ))}
+                  <div>
+                    <p style={{ fontWeight: '600', color: '#2b2d42', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Tap to Call</p>
+                    <p style={{ color: '#d6336c', margin: 0, fontWeight: '700', fontSize: '1rem' }}>+91 98765 43210</p>
+                  </div>
+                </a>
+
+                <a href="mailto:chef.srinivas@email.com" className="contact-info-link">
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    backgroundColor: '#e67700',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.3rem',
+                    flexShrink: 0
+                  }}>
+                    📧
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: '600', color: '#2b2d42', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Email Inquiries</p>
+                    <p style={{ color: '#d6336c', margin: 0, fontWeight: '600', fontSize: '0.95rem', wordBreak: 'break-all' }}>chef.srinivas@email.com</p>
+                  </div>
+                </a>
+
+                <div className="contact-info-link" style={{ cursor: 'default' }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    backgroundColor: '#e67700',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.3rem',
+                    flexShrink: 0
+                  }}>
+                    📍
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: '600', color: '#2b2d42', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Catering Coverage</p>
+                    <p style={{ color: '#2b2d42', margin: 0, fontSize: '0.95rem' }}>Serving Metro & Surrounding Areas</p>
+                  </div>
+                </div>
+
+                <div className="contact-info-link" style={{ cursor: 'default' }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    backgroundColor: '#e67700',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.3rem',
+                    flexShrink: 0
+                  }}>
+                    ⏰
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: '600', color: '#2b2d42', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Response Time</p>
+                    <p style={{ color: '#5c940d', margin: 0, fontWeight: '700', fontSize: '0.95rem' }}>Usually within 2 hours</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Chef's Special Note */}
+            {/* Chef's Promise */}
             <div style={{
-              backgroundColor: theme.primary,
-              color: 'white',
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              textAlign: 'center'
+              backgroundColor: '#d6336c',
+              color: '#ffffff',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1.35rem',
+              textAlign: 'center',
+              boxShadow: 'var(--shadow-md)'
             }}>
               <h4 style={{
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                marginBottom: '0.5rem'
-              }}>Chef's Promise</h4>
-              <p style={{margin: 0, fontStyle: 'italic'}}>
-                "I personally oversee every event and guarantee a dining experience 
-                that will leave your guests talking for weeks!"
-              </p>
-              <p style={{margin: '0.5rem 0 0 0', fontWeight: '600'}}>
-                - Chef Srinivas
+                fontSize: '1.15rem',
+                fontWeight: '700',
+                marginBottom: '0.35rem'
+              }}>Chef Srinivas's Promise</h4>
+              <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.92rem', opacity: 0.95, lineHeight: 1.5 }}>
+                "I personally oversee every menu and guarantee an authentic dining experience that your guests will cherish!"
               </p>
             </div>
           </div>

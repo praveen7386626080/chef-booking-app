@@ -1,16 +1,18 @@
-// src/components/Header.jsx - UPDATED WITH ACTIVE STATES
+// src/Components/Header.jsx - MOBILE RESPONSIVE WITH HAMBURGER MENU
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Handle scroll detection and active link highlighting
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 50;
+      const isScrolled = window.scrollY > 30;
       setScrolled(isScrolled);
     };
 
@@ -38,7 +40,7 @@ function Header() {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
+          return rect.top <= 120 && rect.bottom >= 120;
         }
         return false;
       });
@@ -50,8 +52,8 @@ function Header() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('scroll', updateActiveNav);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
 
     updateActiveNav();
 
@@ -61,8 +63,44 @@ function Header() {
     };
   }, [location.pathname, location.hash]);
 
+  // Close mobile menu on Escape key press or screen resize
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth > 860) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const handleNavClick = (e, sectionId) => {
     e.preventDefault();
+    setMobileMenuOpen(false);
 
     const targetHash = `#${sectionId}`;
     if (location.pathname !== '/') {
@@ -76,9 +114,13 @@ function Header() {
 
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+      const headerOffset = 70;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
       });
     }
 
@@ -92,7 +134,14 @@ function Header() {
     const sectionId = location.hash.replace('#', '');
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const headerOffset = 70;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
       setActiveNav(sectionId);
     }
   }, [location.pathname, location.hash]);
@@ -101,18 +150,25 @@ function Header() {
 
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '0 20px'
-      }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <h1>Chef Srinivas's Kitchen</h1>
+      <div className="header-container">
+        {/* Brand Logo & Name */}
+        <Link 
+          to="/" 
+          className="brand-link" 
+          onClick={(e) => {
+            if (location.pathname === '/') {
+              handleNavClick(e, 'home');
+            } else {
+              setMobileMenuOpen(false);
+            }
+          }}
+        >
+          <span className="brand-badge">👨‍🍳</span>
+          <h1 className="brand-title">Chef Srinivas's Kitchen</h1>
         </Link>
-        <nav className="nav">
+
+        {/* Desktop Navigation Links */}
+        <nav className="nav-desktop" aria-label="Main Navigation">
           <Link 
             to="/" 
             onClick={(e) => handleNavClick(e, 'home')}
@@ -152,9 +208,82 @@ function Header() {
           >
             Admin
           </Link>
-          {/* Test link removed per request */}
         </nav>
+
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          className={`hamburger-btn ${mobileMenuOpen ? 'open' : ''}`}
+          onClick={() => setMobileMenuOpen(prev => !prev)}
+          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={mobileMenuOpen}
+        >
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+        </button>
       </div>
+
+      {/* Mobile Backdrop Overlay */}
+      <div 
+        className={`mobile-overlay ${mobileMenuOpen ? 'open' : ''}`} 
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Mobile Navigation Drawer */}
+      <nav 
+        className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}
+        aria-label="Mobile Navigation"
+      >
+        <div className="mobile-nav-links">
+          <Link 
+            to="/" 
+            onClick={(e) => handleNavClick(e, 'home')}
+            className={`mobile-nav-link ${isActive('home') ? 'active' : ''}`}
+          >
+            <span>🏠</span>
+            <span>Home</span>
+          </Link>
+          <Link 
+            to="/" 
+            onClick={(e) => handleNavClick(e, 'menu')}
+            className={`mobile-nav-link ${isActive('menu') ? 'active' : ''}`}
+          >
+            <span>🍛</span>
+            <span>Menu</span>
+          </Link>
+          <Link 
+            to="/" 
+            onClick={(e) => handleNavClick(e, 'about')}
+            className={`mobile-nav-link ${isActive('about') ? 'active' : ''}`}
+          >
+            <span>👨‍🍳</span>
+            <span>About Chef</span>
+          </Link>
+          <Link 
+            to="/" 
+            onClick={(e) => handleNavClick(e, 'contact')}
+            className={`mobile-nav-link ${isActive('contact') ? 'active' : ''}`}
+          >
+            <span>📞</span>
+            <span>Contact & Book</span>
+          </Link>
+          <Link 
+            to="/admin"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`mobile-nav-link ${isActive('admin') ? 'active' : ''}`}
+          >
+            <span>🔐</span>
+            <span>Admin Portal</span>
+          </Link>
+        </div>
+
+        <div className="mobile-nav-footer">
+          <p>Chef Srinivas's Kitchen</p>
+          <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '4px' }}>Authentic Private Dining</p>
+        </div>
+      </nav>
     </header>
   );
 }
