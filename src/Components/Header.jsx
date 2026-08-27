@@ -201,13 +201,6 @@ function Header() {
           >
             Contact
           </Link>
-          <Link 
-            to="/admin"
-            className={isActive('admin') ? 'active' : ''}
-            aria-current={isActive('admin') ? 'page' : undefined}
-          >
-            Admin
-          </Link>
         </nav>
 
         {/* Mobile Hamburger Button */}
@@ -268,14 +261,6 @@ function Header() {
           >
             <span>📞</span>
             <span>Contact & Book</span>
-          </Link>
-          <Link 
-            to="/admin"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`mobile-nav-link ${isActive('admin') ? 'active' : ''}`}
-          >
-            <span>🔐</span>
-            <span>Admin Portal</span>
           </Link>
         </div>
 
