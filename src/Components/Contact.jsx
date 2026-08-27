@@ -66,7 +66,7 @@ function Contact() {
   return (
     <section className="contact-section" id="contact">
       <div style={{ maxWidth: '1150px', margin: '0 auto', width: '100%' }}>
-        
+
         {/* Section Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <h2 style={{
@@ -98,7 +98,7 @@ function Contact() {
 
         {/* Contact Layout Grid */}
         <div className="contact-layout-grid">
-          
+
           {/* Contact Form */}
           <div className="contact-card-box">
             <h3 style={{
@@ -110,7 +110,7 @@ function Contact() {
             }}>
               Send an Inquiry
             </h3>
-            
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{
@@ -322,9 +322,9 @@ function Contact() {
               }}>
                 Direct Contact
               </h3>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <a href="tel:+919876543210" className="contact-info-link">
+                <a href="tel:+918106388530" className="contact-info-link">
                   <div style={{
                     width: '46px',
                     height: '46px',
@@ -340,11 +340,11 @@ function Contact() {
                   </div>
                   <div>
                     <p style={{ fontWeight: '600', color: '#2b2d42', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Tap to Call</p>
-                    <p style={{ color: '#d6336c', margin: 0, fontWeight: '700', fontSize: '1rem' }}>+91 98765 43210</p>
+                    <p style={{ color: '#d6336c', margin: 0, fontWeight: '700', fontSize: '1rem' }}>+91 81063 88530</p>
                   </div>
                 </a>
 
-                <a href="mailto:chef.srinivas@email.com" className="contact-info-link">
+                <a href="mailto:annarampraveen080@gmail.com" className="contact-info-link">
                   <div style={{
                     width: '46px',
                     height: '46px',
@@ -360,7 +360,7 @@ function Contact() {
                   </div>
                   <div>
                     <p style={{ fontWeight: '600', color: '#2b2d42', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Email Inquiries</p>
-                    <p style={{ color: '#d6336c', margin: 0, fontWeight: '600', fontSize: '0.95rem', wordBreak: 'break-all' }}>chef.srinivas@email.com</p>
+                    <p style={{ color: '#d6336c', margin: 0, fontWeight: '600', fontSize: '0.95rem', wordBreak: 'break-all' }}>annarampraveen080@gmail.com</p>
                   </div>
                 </a>
 
